@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
+import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -17,12 +18,16 @@ import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -30,9 +35,9 @@ import java.util.logging.Logger;
 
 /*
  * Memory Index
- * 
- * author: sjh, schiu
- * 
+ *
+ * author: sjh, schiu, MichaelZ
+ *
  */
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
@@ -45,6 +50,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   protected HashMap<String, MemoryIndexPart> parts;
   protected LengthsReader lengthsReader = null;
   protected MemoryDocumentNames namesReader = null;
+  private Tokenizer tokenizer =  null;
   // haven't got any of these at the moment
   HashMap<String, String> defaultIndexOperators = new HashMap<>();
   HashSet<String> knownIndexOperators = new HashSet<>();
@@ -70,6 +76,26 @@ public class MemoryIndex implements DynamicIndex, Index {
     parts.put("names", new MemoryDocumentNames(partParams.clone()));
     parts.put("lengths", new MemoryDocumentLengths(partParams.clone()));
     parts.put("extents", new MemoryWindowIndex(partParams.clone()));
+
+    if (manifest.containsKey("tokenizer") && manifest.getMap("tokenizer").containsKey("class")){
+      // TODO : should have a tokenizer factory
+      Class c = Class.forName(manifest.getMap("tokenizer").getAsString("class"));
+      Constructor cstr = c.getConstructor(TupleFlowParameters.class);
+      Parameters tp = Parameters.create();
+      tp.set("fields", manifest.getMap("tokenizer").getAsList("fields"));
+      tokenizer = (Tokenizer) cstr.newInstance(new FakeParameters(tp));
+
+      List<String> fields = manifest.getMap("tokenizer").getAsList("fields");
+      for (String field : fields){
+        Parameters fp = partParams.clone();
+        fp.put("field", field);
+        parts.put("field." + field, new MemoryPositionalFieldIndex(fp));
+        if (stemming) {
+          fp.set("stemmer", manifest.get("stemmer", KrovetzStemmer.class.getName()));
+          parts.put("field.krovetz." + field, new MemoryPositionalFieldIndex(fp));
+        }
+      }
+    }
 
     if (makecorpus) {
       parts.put("corpus", new MemoryCorpus(partParams.clone()));
@@ -104,7 +130,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   public String getIndexPath(){
     return "memory";
   }
-  
+
   /**
    * Special function to return the number of documents stored in memory
    *
@@ -116,6 +142,9 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   @Override
   public void process(Document doc) throws IOException {
+    if (tokenizer != null){
+      tokenizer.process(doc);
+    }
     doc.identifier = documentCount;
     for (MemoryIndexPart part : parts.values()) {
       part.addDocument(doc);

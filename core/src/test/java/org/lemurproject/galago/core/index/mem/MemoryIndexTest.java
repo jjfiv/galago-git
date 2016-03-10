@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -22,7 +23,7 @@ import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,49 +35,72 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- *
- * @author sjh
+ * @author sjh, MichaelZ
  */
 public class MemoryIndexTest {
   @Test
   public void testProcessDocuments() throws Exception {
     Parameters p = Parameters.create();
+    p.put("makecorpus", true);
+    p.set("tokenizer", Parameters.create());
+    String[] fields = {"thing", "loc"};
+    p.getMap("tokenizer").set("fields", fields);
+    p.getMap("tokenizer").set("class", TagTokenizer.class.getCanonicalName());
 
-    MemoryIndex index = new MemoryIndex(new FakeParameters(p));
+    MemoryIndex indexWithFields = new MemoryIndex(new FakeParameters(p));
 
     for (int i = 0; i < 200; i++) {
       Document d = new Document();
       d.name = "DOC-" + i;
-      d.text = "this is sample document " + i;
+      d.text = "this is sample <thing>document " + i + "</thing>";
       d.terms = Arrays.asList(d.text.split(" "));
       d.tags = new ArrayList<Tag>();
-      d.metadata = new HashMap<String,String>();
-
-      index.process(d);
+      d.metadata = new HashMap<String, String>();
+      indexWithFields.process(d);
     }
 
-    CollectionAggregateIterator lengthsIterator = (CollectionAggregateIterator) index.getLengthsIterator();
+    Document d = new Document();
+    d.name = "DOC-201" ;
+    d.text = "<loc>Amherst</loc> is located in <loc>Massachusetts</loc>";
+    d.terms = Arrays.asList(d.text.split(" "));
+    d.tags = new ArrayList<Tag>();
+    d.metadata = new HashMap<String,String>();
+    indexWithFields.process(d);
+
+    CollectionAggregateIterator lengthsIterator = (CollectionAggregateIterator) indexWithFields.getLengthsIterator();
     FieldStatistics collStats = lengthsIterator.getStatistics();
-    assertEquals(collStats.collectionLength, 1000);
-    assertEquals(collStats.documentCount, 200);
+    assertEquals(collStats.collectionLength, 1005);
+    assertEquals(collStats.documentCount, 201);
     assertEquals(collStats.fieldName, "document");
     assertEquals(collStats.maxLength, 5);
     assertEquals(collStats.minLength, 5);
 
-    IndexPartStatistics is1 = index.getIndexPartStatistics("postings");
-    assertEquals(is1.collectionLength, 1000);
-    assertEquals(is1.vocabCount, 204);
-    assertEquals(is1.highestFrequency, 200);
-    assertEquals(is1.highestDocumentCount, 200);
+    IndexPartStatistics is1 = indexWithFields.getIndexPartStatistics("postings");
+    assertEquals(is1.collectionLength, 1005);
+    assertEquals(is1.vocabCount, 208);
+    assertEquals(is1.highestFrequency, 201);
+    assertEquals(is1.highestDocumentCount, 201);
 
-    IndexPartStatistics is2 = index.getIndexPartStatistics("postings.krovetz");
-    assertEquals(is2.collectionLength, 1000);
-    assertEquals(is2.vocabCount, 204);
-    assertEquals(is2.highestFrequency, 200);
-    assertEquals(is2.highestDocumentCount, 200);
+    IndexPartStatistics is2 = indexWithFields.getIndexPartStatistics("postings.krovetz");
+    assertEquals(is2.collectionLength, 1005);
+    assertEquals(is2.vocabCount, 208);
+    assertEquals(is2.highestFrequency, 201);
+    assertEquals(is2.highestDocumentCount, 201);
+
+    IndexPartStatistics is3 = indexWithFields.getIndexPartStatistics("field.thing");
+    assertEquals(is3.collectionLength, 400);
+    assertEquals(is3.vocabCount, 201);
+    assertEquals(is3.highestFrequency, 200);
+    assertEquals(is3.highestDocumentCount, 200);
+
+    IndexPartStatistics is4 = indexWithFields.getIndexPartStatistics("field.loc");
+    assertEquals(is4.collectionLength, 2);
+    assertEquals(is4.vocabCount, 2);
+    assertEquals(is4.highestFrequency, 1);
+    assertEquals(is4.highestDocumentCount, 1);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
-    CountIterator ci = (CountIterator) index.getIterator(n);
+    CountIterator ci = (CountIterator) indexWithFields.getIterator(n);
     ScoringContext sc = new ScoringContext();
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
@@ -86,6 +110,62 @@ public class MemoryIndexTest {
       ci.movePast(ci.currentCandidate());
     }
     assertEquals(total, 200);
+
+    n = StructuredQuery.parse("#counts:is:part=postings()");
+    ci = (CountIterator) indexWithFields.getIterator(n);
+    sc = new ScoringContext();
+    assertEquals(ci.currentCandidate(), 0);
+    total = 0;
+    while (!ci.isDone()) {
+      sc.document = ci.currentCandidate();
+      total += ci.count(sc);
+      ci.movePast(ci.currentCandidate());
+    }
+    assertEquals(total, 201);
+
+    n = StructuredQuery.parse("#counts:document:part=field.thing()");
+    ci = (CountIterator) indexWithFields.getIterator(n);
+    sc = new ScoringContext();
+    assertEquals(ci.currentCandidate(), 0);
+    total = 0;
+    while (!ci.isDone()) {
+      sc.document = ci.currentCandidate();
+      total += ci.count(sc);
+      ci.movePast(ci.currentCandidate());
+    }
+    assertEquals(total, 200);
+
+    File output = FileUtility.createTemporaryDirectory();
+    FlushToDisk.flushMemoryIndex(indexWithFields, output.getAbsolutePath(), false);
+
+    // check that the field index part is used
+    Retrieval retrieval = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.create());
+    Node tree = StructuredQuery.parse("#combine( #inside( #text:amherst() #field:loc() ) )");
+    tree = retrieval.transformQuery(tree, Parameters.create());
+    assertEquals("#combine:w=1.0( #dirichlet:collectionLength=1005:maximumCount=1:nodeFrequency=1:w=1.0( #lengths:document:part=lengths() #counts:amherst:part=field.krovetz.loc() ) )", tree.toString());
+    List<ScoredDocument> results = retrieval.executeQuery(tree, Parameters.create()).scoredDocuments;
+    assertEquals(results.size(), 1);
+    assertEquals(results.get(0).documentName, "DOC-201");
+    retrieval.close();
+
+    // now remove the "loc" field parts, so retrieval should now use extents.
+    File f = new File(output.getAbsolutePath() + File.separator + "field.loc");
+    f.delete();
+    f = new File(output.getAbsolutePath() + File.separator + "field.krovetz.loc");
+    f.delete();
+
+    retrieval = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.create());
+    tree = StructuredQuery.parse("#combine( #inside( #text:amherst() #field:loc() ) )");
+    tree = retrieval.transformQuery(tree, Parameters.create());
+    assertEquals("#combine:w=1.0( #dirichlet:collectionLength=1005:maximumCount=1:nodeFrequency=1:w=1.0( #lengths:document:part=lengths() #inside( #extents:amherst:part=postings.krovetz() #extents:loc:part=extents() ) ) )", tree.toString());
+    results = retrieval.executeQuery(tree, Parameters.create()).scoredDocuments;
+    assertEquals(results.size(), 1);
+    assertEquals(results.get(0).documentName, "DOC-201");
+    retrieval.close();
+
+    // clean up...
+    FSUtil.deleteDirectory(output);
+
   }
 
   @Test
