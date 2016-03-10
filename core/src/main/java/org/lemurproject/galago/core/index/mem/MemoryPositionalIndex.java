@@ -234,9 +234,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     is.highestFrequency = this.highestFrequency;
     return is;
   }
-
-  // private functions
-  private String stemAsRequired(String term) {
+ 
+  protected String stemAsRequired(String term) {
     if (stemmer != null) {
       return stemmer.stem(term);
     }
