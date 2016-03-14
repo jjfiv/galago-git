@@ -39,13 +39,17 @@ public class RankedNonZeroLengthDocumentModel extends ProcessingModel {
 
     // construct the iterators -- we use tree processing
     ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree);
+    LengthsIterator documentLengths = retrieval.getDocumentLengthsIterator();
+    // now there should be an iterator at the root of this tree
 
     while (!iterator.isDone()) {
 
       long document = iterator.currentCandidate();
 
       context.document = document;
-      int length = retrieval.getDocumentLength((int) document);
+
+      documentLengths.syncTo(document);
+      int length = documentLengths.length(context);
 
       iterator.syncTo(document);
       if (iterator.hasMatch(context)) {
