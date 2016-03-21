@@ -55,14 +55,13 @@ public class FilteringIteratorTest {
       queryFile1 = FileUtility.createTemporary();
       StreamUtil.copyStringToFile(queries, queryFile1);
 
-
       // Smoke test with batch search
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
       App.run(new String[]{"xcount",
-                "--index=" + tempPath.getAbsolutePath(),
-                queryFile1.getAbsolutePath()}, printStream);
+              "--index=" + tempPath.getAbsolutePath(),
+              queryFile1.getAbsolutePath()}, printStream);
 
       // Now, verify that we got the right count
       String output = byteArrayStream.toString().trim();

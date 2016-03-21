@@ -61,7 +61,11 @@ public class AnnotateCollectionStatistics extends Traversal {
     // need to get list of required statistics
     NodeType nt = retrieval.getNodeType(node);
     if(nt == null){
-      throw new IllegalArgumentException("NodeType of " + node.toString() + " is unknown.");
+      if (node.getOperator().equals("field")){
+        throw new IllegalArgumentException("NodeType of " + node.toString() + " is unknown. Fields should be tokenized with a data type in the formats parameter.");
+      } else {
+        throw new IllegalArgumentException("NodeType of " + node.toString() + " is unknown.");
+      }
     }
     
     Class<? extends BaseIterator> c = nt.getIteratorClass();
