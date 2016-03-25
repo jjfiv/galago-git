@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData8 {
+public class KStemData8 {
     private KStemData8() {
     }
-   static String[] data = {
+   public static String[] data = {
 "tenor","tenpin","tense","tensile","tension",
 "tent","tentacle","tentative","tenterhooks","tenuity",
 "tenuous","tenure","tepee","tepid","tequila",

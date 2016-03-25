@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData5 {
+public class KStemData5 {
     private KStemData5() {
     }
-   static String[] data = {
+   public static String[] data = {
 "lock","locker","locket","lockjaw","locknut",
 "lockout","locks","locksmith","lockstitch","lockup",
 "loco","locomotion","locomotive","locum","locus",

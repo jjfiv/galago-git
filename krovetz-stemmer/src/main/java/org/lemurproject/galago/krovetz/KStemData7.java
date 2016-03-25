@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData7 {
+public class KStemData7 {
     private KStemData7() {
     }
-   static String[] data = {
+   public static String[] data = {
 "rupee","rupture","rural","ruritanian","ruse",
 "rush","rushes","rushlight","rusk","russet",
 "rust","rustic","rusticate","rustication","rustle",

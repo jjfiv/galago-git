@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData2 {
+public class KStemData2 {
     private KStemData2() {
     }
-   static String[] data = {
+   public static String[] data = {
 "cash","cashew","cashier","cashmere","casing",
 "casino","cask","casket","casque","cassava",
 "casserole","cassette","cassock","cassowary","cast",

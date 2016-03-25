@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData4 {
+public class KStemData4 {
     private KStemData4() {
     }
-   static String[] data = {
+   public static String[] data = {
 "granular","granulate","granule","grape","grapefruit",
 "grapeshot","grapevine","graph","graphic","graphical",
 "graphically","graphite","graphology","grapnel","grapple",

@@ -41,10 +41,10 @@ package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
-class KStemData6 {
+public class KStemData6 {
     private KStemData6() {
     }
-   static String[] data = {
+   public static String[] data = {
 "pedant","pedantic","pedantry","peddle","peddler",
 "pederast","pederasty","pedestal","pedestrian","pediatrician",
 "pediatrics","pedicab","pedicel","pedicure","pedigree",
