@@ -74,24 +74,32 @@ public class SearchWebHandler implements WebHandler {
         Document document = search.getDocument(identifier, p);
         response.setContentType("text/html; charset=UTF-8");
 
-        PrintWriter writer = response.getWriter();
+        String raw = request.getParameter("raw");
+        boolean doPre = raw != null && raw.isEmpty() || Boolean.parseBoolean(raw);
 
-        writer.write(document.name);
-        writer.write("<p>");
-        Map<String, String> metadata = document.metadata;
-        if (metadata != null) {
-            writer.append("META:<br>");
-            for (Map.Entry<String, String> entry : metadata.entrySet()) {
-                writer.write("key: " + entry.getKey());
-                writer.write(" value:" + getEscapedString(entry.getValue()));
-                writer.write("<br>");
-            }
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write(document.name);
             writer.write("<p>");
-        }
+            Map<String, String> metadata = document.metadata;
+            if (metadata != null) {
+                writer.append("META:<br>");
+                for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                    writer.write("key: " + entry.getKey());
+                    writer.write(" value:" + getEscapedString(entry.getValue()));
+                    writer.write("<br>");
+                }
+                writer.write("<p>");
+            }
 
-        writer.write("TEXT:");
-        writer.write(getEscapedString(document.text));
-        writer.close();
+            writer.write("TEXT:");
+            if (doPre) {
+                writer.write("<pre>");
+                writer.write(document.text);
+                writer.write("</pre>");
+            } else {
+                writer.write(getEscapedString(document.text));
+            }
+        }
     }
 
     public void handleSnippet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -199,7 +207,10 @@ public class SearchWebHandler implements WebHandler {
 
         for (SearchResultItem item : result.items) {
             if(item.displayTitle.trim().isEmpty()) {
-                item.displayTitle = "&lt;document link&gt;";
+                item.displayTitle = scrub(item.identifier);
+                if(item.displayTitle.trim().isEmpty()) {
+                    item.displayTitle = "&lt;document link&gt;";
+                }
             }
             writer.append("<div id=\"result\">\n");
             writer.append(String.format("<a href=\"document?identifier=%s\">%s</a><br/>"
