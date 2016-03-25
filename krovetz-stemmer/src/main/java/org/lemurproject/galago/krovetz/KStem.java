@@ -43,8 +43,6 @@ package org.lemurproject.galago.krovetz;
  * @version 1.1
  */
 
-import java.io.FileReader;
-import java.io.LineNumberReader;
 import java.util.HashMap;
 
 /**
@@ -221,7 +219,10 @@ public final class KStem {
      "conner", "coors", "cummings", "curtis", "daedalus", "dionysus",
      "dobbs", "dolores", "edmonds"};
 
- private static class DictEntry {
+
+
+
+  private static class DictEntry {
 
   boolean exception;
   String root;
@@ -246,19 +247,19 @@ public final class KStem {
  //  private void initializeStemHash() {
 //    stem_ht = new HashMap();
 //  }
- private char finalChar() {
+ private final char finalChar() {
   return word.charAt(k);
  }
 
- private char penultChar() {
+ private final char penultChar() {
   return word.charAt(k - 1);
  }
 
- private boolean isVowel(int index) {
+ private final boolean isVowel(int index) {
   return !isCons(index);
  }
 
- private boolean isCons(int index) {
+ private final boolean isCons(int index) {
   char ch;
 
   ch = word.charAt(index);
@@ -420,7 +421,7 @@ public final class KStem {
    }
  }
 
- private boolean isAlpha(char ch) {
+ private final boolean isAlpha(char ch) {
   if ((ch >= 'a') && (ch <= 'z')) {
    return true;
   }
@@ -431,11 +432,11 @@ public final class KStem {
  }
 
  /* length of stem within word */
- private int stemLength() {
+ private final int stemLength() {
   return j + 1;
  }
 
- private boolean endsIn(String s) {
+ private final boolean endsIn(String s) {
   boolean match;
   int sufflength = s.length();
 
@@ -459,14 +460,14 @@ public final class KStem {
   return match;
  }
 
- private DictEntry wordInDict() {
+ private final DictEntry wordInDict() {
   String s = word.toString();
   return dict_ht.get(s);
  }
 
 
  /* Convert plurals to singular form, and '-ies' to 'y' */
- private void plural() {
+ private final void plural() {
   if (finalChar() == 's') {
    if (endsIn("ies")) {
     word.setLength(j + 3);
@@ -518,12 +519,12 @@ public final class KStem {
   }
  }
 
- private void setSuffix(String s) {
+ private final void setSuffix(String s) {
   setSuff(s, s.length());
  }
 
  /* replace old suffix with s */
- private void setSuff(String s, int len) {
+ private final void setSuff(String s, int len) {
   word.setLength(j + 1);
   for (int l = 0; l < len; l++) {
    word.append(s.charAt(l));
@@ -532,12 +533,12 @@ public final class KStem {
  }
 
  /* Returns true if s is found in the dictionary */
- private boolean lookup(String s) {
+ private final boolean lookup(String s) {
    return dict_ht.containsKey(s);
  }
 
  /* convert past tense (-ed) to present, and `-ied' to `y' */
- private void pastTense() {
+ private final void pastTense() {
     /* Handle words less than 5 letters with a direct mapping
     This prevents (fled -> fl).  */
 
@@ -617,7 +618,7 @@ public final class KStem {
  }
 
  /* return TRUE if word ends with a double consonant */
- private boolean doubleC(int i) {
+ private final boolean doubleC(int i) {
   if (i < 1) {
    return false;
   }
@@ -628,7 +629,7 @@ public final class KStem {
   return (isCons(i));
  }
 
- private boolean vowelInStem() {
+ private final boolean vowelInStem() {
   for (int i = 0; i < stemLength(); i++) {
    if (isVowel(i)) {
     return true;
@@ -638,7 +639,7 @@ public final class KStem {
  }
 
  /* handle `-ing' endings */
- private void aspect() {
+ private final void aspect() {
     /* handle short words (aging -> age) via a direct mapping.  This
     prevents (thing -> the) in the version of this routine that
     ignores inflectional variants that are mentioned in the dictionary
@@ -715,7 +716,7 @@ public final class KStem {
  and -ality, even without checking the dictionary because they are so
  productive.  The first two are mapped to -ble, and the -ity is remove
  for the latter */
- private void ityEndings() {
+ private final void ityEndings() {
   int old_k = k;
 
   if (endsIn("ity")) {
@@ -773,7 +774,7 @@ public final class KStem {
  }
 
  /* handle -ence and -ance */
- private void nceEndings() {
+ private final void nceEndings() {
   int old_k = k;
   char word_char;
 
@@ -801,7 +802,7 @@ public final class KStem {
  }
 
  /* handle -ness */
- private void nessEndings() {
+ private final void nessEndings() {
   if (endsIn("ness")) {     /* this is a very productive endings, so just accept it */
    word.setLength(j + 1);
    k = j;
@@ -813,7 +814,7 @@ public final class KStem {
  }
 
  /* handle -ism */
- private void ismEndings() {
+ private final void ismEndings() {
   if (endsIn("ism")) {    /* this is a very productive ending, so just accept it */
    word.setLength(j + 1);
    k = j;
@@ -822,7 +823,7 @@ public final class KStem {
  }
 
  /* this routine deals with -ment endings. */
- private void mentEndings() {
+ private final void mentEndings() {
   int old_k = k;
 
   if (endsIn("ment")) {
@@ -838,7 +839,7 @@ public final class KStem {
  }
 
  /* this routine deals with -ize endings. */
- private void izeEndings() {
+ private final void izeEndings() {
   int old_k = k;
 
   if (endsIn("ize")) {
@@ -872,7 +873,7 @@ public final class KStem {
  }
 
  /* handle -ency and -ancy */
- private void ncyEndings() {
+ private final void ncyEndings() {
   if (endsIn("ncy")) {
    if (!((word.charAt(j) == 'e') || (word.charAt(j) == 'a'))) {
     return;
@@ -893,7 +894,7 @@ public final class KStem {
  }
 
  /* handle -able and -ible */
- private void bleEndings() {
+ private final void bleEndings() {
   int old_k = k;
   char word_char;
 
@@ -940,7 +941,7 @@ public final class KStem {
  /* handle -ic endings.   This is fairly straightforward, but this is
  also the only place we try *expanding* an ending, -ic -> -ical.
  This is to handle cases like `canonic' -> `canonical' */
- private void icEndings() {
+ private final void icEndings() {
   if (endsIn("ic")) {
    word.setLength(j + 3);
    word.append("al");        /* try converting -ic to -ical */
@@ -975,7 +976,7 @@ public final class KStem {
  /* handle some derivational endings */
   /* this routine deals with -ion, -ition, -ation, -ization, and -ication.  The
   -ization ending is always converted to -ize */
- private void ionEndings() {
+ private final void ionEndings() {
   int old_k = k;
 
   if (endsIn("ization")) {   /* the -ize ending is very productive, so simply accept it as the root */
@@ -1072,7 +1073,7 @@ public final class KStem {
 
  /* this routine deals with -er, -or, -ier, and -eer.  The -izer ending is always converted to
  -ize */
- private void erAndOrEndings() {
+ private final void erAndOrEndings() {
   int old_k = k;
 
   char word_char;                 /* so we can remember if it was -er or -or */
@@ -1142,7 +1143,7 @@ public final class KStem {
  /* this routine deals with -ly endings.  The -ally ending is always converted to -al
  Sometimes this will temporarily leave us with a non-word (e.g., heuristically
  maps to heuristical), but then the -al is removed in the next step.  */
- private void lyEndings() {
+ private final void lyEndings() {
   int old_k = k;
 
   if (endsIn("ly")) {
@@ -1194,7 +1195,7 @@ public final class KStem {
 
  /* this routine deals with -al endings.  Some of the endings from the previous routine
  are finished up here.  */
- private void alEndings() {
+ private final void alEndings() {
   int old_k = k;
 
   if (word.length() < 4) {
@@ -1271,7 +1272,7 @@ public final class KStem {
 
  /* this routine deals with -ive endings.  It normalizes some of the
  -ative endings directly, and also maps some -ive endings to -ion. */
- private void iveEndings() {
+ private final void iveEndings() {
   int old_k = k;
 
   if (endsIn("ive")) {
@@ -1488,63 +1489,5 @@ public final class KStem {
   //  }
 
   return result;
- }
-
- // DEPRECATED....
- static private void usage() {
-  System.out.println("Usage:");
-  System.out.println("  KStemmer <inputFile>");
-  System.out.println("    or");
-  System.out.println("  KStemmer -w <word>");
-  System.exit(1);
- }
-
- /** For testing only.
-  <p>Usage:
-  <ul>
-  <li><code><B>KrovetzStemmer &lt;inputFile&gt;</B></code>
-  <p> Will stem all words
-  in <code>&lt;inputFile&gt;</code> (one word per line).
-  <p>
-  <li><code><B>KrovetzStemmer -w &lt;word&gt;</B></code>
-  <p> Will stem a single
-  <code>&lt;word&gt;</code>
-  <p>
-  </ul>
-  In either case, the output is sent to <code>System.out</code>
-  */
- static public void main(String[] args) {
-  KStem stemmer = new KStem();
-  String line = null;
-
-  if ((args.length == 0) || (args.length > 2)) {
-   usage();
-  }
-
-  if (args.length == 2) {
-   if (!args[0].equals("-w")) {
-    usage();
-   }
-   System.out.println(args[1] + " " + stemmer.stemTerm(args[1]));
-   return;
-  }
-
-  // If we get here, we are about to process a file
-
-  try {
-   LineNumberReader reader = new LineNumberReader(new FileReader(args[0]));
-
-   line = reader.readLine();
-   while (line != null) {
-    line = line.trim();
-    System.out.println(line + " " + stemmer.stemTerm(line));
-    line = reader.readLine();
-   }
-   reader.close();
-
-  } catch (Exception e) {
-   System.out.println("Exception while processing term [" + line + "]");
-   e.printStackTrace();
-  }
  }
 }

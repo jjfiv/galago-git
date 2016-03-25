@@ -1,11 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -17,6 +12,12 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.SimpleQuery;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -123,8 +124,8 @@ public class Search {
     }
 
     public SearchResult runTransformedQuery(Node root, Parameters p, boolean summarize) throws Exception {
-        int startAt = (int) p.getLong("startAt");
-        int count = (int) p.getLong("resultCount");
+        int startAt = p.getInt("startAt");
+        int count = p.getInt("resultCount");
 
         List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
 
