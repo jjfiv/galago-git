@@ -88,7 +88,18 @@ public class TimedBatchSearch extends AppFunction {
     }
 
     // get queries
-    List<Parameters> queries = JSONQueryFormat.collectQueries(parameters);
+    List<Parameters> queries;
+    String queryFormat = parameters.get("queryFormat", "json").toLowerCase();
+    switch (queryFormat)
+    {
+      case "json":
+        queries = JSONQueryFormat.collectQueries(parameters);
+        break;
+      case "tsv":
+        queries = JSONQueryFormat.collectTSVQueries(parameters);
+        break;
+      default: throw new IllegalArgumentException("Unknown queryFormat: "+queryFormat+" try one of JSON, TSV");
+    }
 
     // open index
     Retrieval retrieval = RetrievalFactory.create(parameters);
@@ -146,6 +157,16 @@ public class TimedBatchSearch extends AppFunction {
 
         // parse and transform query into runnable form
         Node root = StructuredQuery.parse(queryText);
+        // --operatorWrap=sdm will now #sdm(...text... here)
+        if(parameters.isString("operatorWrap")) {
+          if(root.getOperator().equals("root")) {
+            root.setOperator(parameters.getString("operatorWrap"));
+          } else {
+            Node oldRoot = root;
+            root = new Node(parameters.getString("operatorWrap"));
+            root.add(oldRoot);
+          }
+        }
         Node transformed = retrieval.transformQuery(root, query);
 
         querymidtime = System.currentTimeMillis();
