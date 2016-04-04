@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.Closeable;
@@ -233,4 +234,10 @@ public interface Retrieval extends Closeable {
    *  -- if no cache is present, function does nothing
    */
   void addAllNodesToCache(Node node) throws Exception;
+
+  /**
+   * Get a tokenizer!
+   * @return a tokenizer according to how this index was built.
+   */
+  Tokenizer getTokenizer();
 }

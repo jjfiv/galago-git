@@ -16,6 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -502,6 +503,11 @@ public class LocalRetrieval implements Retrieval {
 
             cache.addToCache(node, this.createIterator(Parameters.create(), node));
         }
+    }
+
+    @Override
+    public Tokenizer getTokenizer() {
+        return Tokenizer.create(this.index.getManifest());
     }
 
     @Override

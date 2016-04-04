@@ -1,7 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.parse.tagtok.*;
+import org.lemurproject.galago.core.parse.tagtok.IntSpan;
+import org.lemurproject.galago.core.parse.tagtok.TagTokenizerParser;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -11,7 +12,10 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StringPooler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;

@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -492,5 +493,10 @@ public class MultiRetrieval implements Retrieval {
     for (Retrieval r : this.retrievals) {
       r.addAllNodesToCache(node);
     }
+  }
+
+  @Override
+  public Tokenizer getTokenizer() {
+    return this.retrievals.get(0).getTokenizer();
   }
 }
