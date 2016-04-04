@@ -76,6 +76,7 @@ public class XFoldLearner extends Learner {
         copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
         copy.remove("query");
         copy.remove("queries");
+        copy.remove("queryFormat");
         copy.set("queries", queries.getParametersSubset(xfoldQueryNumbers)); // overwrite //
         StreamUtil.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-test-fold-" + foldId + ".json"));
       }
@@ -84,6 +85,7 @@ public class XFoldLearner extends Learner {
       copy.set("name", name + "-foldId-" + foldId);
       copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
       copy.remove("queries");
+      copy.remove("queryFormat");
       copy.set("queries", queries.getParametersSubset(xfoldQueryNumbersInverse)); // overwrite //
       foldTrainParameters.put(foldId, copy);
 
