@@ -214,6 +214,17 @@ public class CoordinateAscentLearner extends Learner {
         boolean improving = true;
         boolean atLimit = false;
 
+        // avoid exceeding upper bound
+        if (limitRange && (currParamValue + step > upperLimit)) {
+          if (currParamValue == upperLimit) {
+            improving = false;
+          } else {
+            atLimit = true;
+            step = upperLimit - currParamValue;
+            outputTraceStream.println("Hit limit : upper limit: " + step);
+          }
+        }
+
         while (improving) {
           parameterSettings.unsafeSet(coord, currParamValue + step);
           double evaluation = evaluate(parameterSettings);
@@ -265,6 +276,17 @@ public class CoordinateAscentLearner extends Learner {
         stepCount = 0;
         improving = true;
         atLimit = false;
+
+        // avoid exceeding lower bound
+        if (limitRange && (currParamValue - step < lowerLimit)) {
+          if (currParamValue == lowerLimit) {
+            improving = false;
+          } else {
+            atLimit = true;
+            step = currParamValue - lowerLimit;
+            outputTraceStream.println("Hit lower limit : new step: " + step);
+          }
+        }
 
         while (improving) {
           parameterSettings.unsafeSet(coord, currParamValue - step);
