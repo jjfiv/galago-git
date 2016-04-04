@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -163,6 +164,11 @@ public class GroupRetrieval implements Retrieval {
   @Override
   public void addAllNodesToCache(Node node) throws Exception {
     groups.get(defGroup).addAllNodesToCache(node);
+  }
+
+  @Override
+  public Tokenizer getTokenizer() {
+    return groups.get(defGroup).getTokenizer();
   }
 
   // IDENTICAL FUNCTIONS THAT USE PARTICULAR GROUPS //
