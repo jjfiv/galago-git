@@ -257,15 +257,17 @@ public class JSONParser {
       }
       delimiter = (char) value;
     }
-    // Now reading string content
-    delimiter = (char) getc();
+    // Now reading string conten
+    value = getc();
+    delimiter = (char) value;
     while (true) {
       if(delimiter == '"') {
         break;
       }
 
-      if(delimiter == -1) {
+      if(value < 0) {
         error("Found EOF in the middle of a string!");
+        break;
       }
 
       if(delimiter == '\\') {
@@ -300,15 +302,18 @@ public class JSONParser {
         else {
           error("Illegal escape sequence: \\"+ch);
         }
-        delimiter = (char) getc();
+        value = getc();
+        delimiter = (char) value;
         continue;
       }
 
       builder.append(delimiter);
-      delimiter = (char) getc();
+      value = getc();
+      delimiter = (char) value;
     }
     // Read first thing *after* the close quote
-    delimiter = (char) getc();
+    value = getc();
+    delimiter = (char) value;
     return builder.toString();
   }
 

@@ -343,5 +343,14 @@ public class ParametersTest {
     assertEquals(expected, data);
   }
 
+  @Test
+  public void unfinishedStr() throws IOException {
+    try {
+      Parameters.parseString("{\"ids\":[\"where's my ending quote? - used to cause an Out of Memory error!");
+      fail("Expected error.");
+    } catch (IOException e) {
+      assertNotNull(e);
+    }
+  }
 }
 
