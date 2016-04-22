@@ -4,14 +4,18 @@
 package org.lemurproject.galago.contrib.learning;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.math3.util.Pair;
 import org.lemurproject.galago.core.eval.EvalDoc;
+import org.lemurproject.galago.core.eval.QueryResults;
 import org.lemurproject.galago.core.eval.QuerySetResults;
+import org.lemurproject.galago.core.eval.SimpleEvalDoc;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamUtil;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -72,6 +76,7 @@ public class XFoldLearner extends Learner {
         copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
         copy.remove("query");
         copy.remove("queries");
+        copy.remove("queryFormat");
         copy.set("queries", queries.getParametersSubset(xfoldQueryNumbers)); // overwrite //
         StreamUtil.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-test-fold-" + foldId + ".json"));
       }
@@ -80,6 +85,7 @@ public class XFoldLearner extends Learner {
       copy.set("name", name + "-foldId-" + foldId);
       copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
       copy.remove("queries");
+      copy.remove("queryFormat");
       copy.set("queries", queries.getParametersSubset(xfoldQueryNumbersInverse)); // overwrite //
       foldTrainParameters.put(foldId, copy);
 
@@ -107,19 +113,35 @@ public class XFoldLearner extends Learner {
   public RetrievalModelInstance learn() throws Exception {
     if (execute) {
       final List<RetrievalModelInstance> learntParams = new ArrayList<>();
+      HashMap<String, List<EvalDoc>> allTestResMap = new HashMap<>();
 
       // one set of results per fold.
       for (int foldId : foldLearners.keySet()) {
         RetrievalModelInstance result = foldLearners.get(foldId).learn();
-        double testScore = evaluateSpecificQueries(result, testQueryFolds.get(foldId));
-        result.setAnnotation("testScore", Double.toString(testScore));
-        double allScore = evaluateSpecificQueries(result, queryNumbers);
+        Pair<Double, HashMap<String, List<EvalDoc>>> testResult = evaluateSpecificQueries(result, testQueryFolds.get(foldId));
+        result.setAnnotation("testScore", Double.toString(testResult.getFirst()));
+        allTestResMap.putAll(testResult.getSecond());
+        double allScore = evaluateSpecificQueries(result, queryNumbers).getFirst();
         result.setAnnotation("allScore", Double.toString(allScore));
 
         this.outputPrintStream.println(result.toPrettyString());
 
         learntParams.add(result);
       }
+
+      // results for test folds combined
+      QuerySetResults allTestResults = new QuerySetResults(allTestResMap);
+      allTestResults.ensureQuerySet(queries.getQueryParameters());
+      if (outputFolder != null) {
+        PrintWriter out = new PrintWriter(new File(outputFolder, name + "-test-fold-all.run"), "UTF-8");
+        for (String queryNumber : allTestResults.getQueryIterator()) {
+          QueryResults results = allTestResults.get(queryNumber);
+          results.outputTrecrun(out, "galago");
+        }
+        out.close();
+      }
+      double allTestScore = evalFunction.evaluate(allTestResults, qrels);
+      outputTraceStream.println(String.format("Score on all test sets combined: %f", allTestScore));
 
       // take an average value across fold instances
       Parameters settings = Parameters.create();
@@ -132,7 +154,7 @@ public class XFoldLearner extends Learner {
         settings.set(param, setting);
       }
       RetrievalModelInstance averageParams = new RetrievalModelInstance(this.learnableParameters, settings);
-      double score = evaluateSpecificQueries(averageParams, queryNumbers);
+      double score = evaluateSpecificQueries(averageParams, queryNumbers).getFirst();
       averageParams.setAnnotation("score", Double.toString(score));
       averageParams.setAnnotation("name", name + "-xfold-avg");
 
@@ -145,7 +167,7 @@ public class XFoldLearner extends Learner {
     }
   }
 
-  protected double evaluateSpecificQueries(RetrievalModelInstance instance, List<String> qids) throws Exception {
+  protected Pair<Double, HashMap<String, List<EvalDoc>>> evaluateSpecificQueries(RetrievalModelInstance instance, List<String> qids) throws Exception {
     long start = 0;
     long end = 0;
 
@@ -177,6 +199,6 @@ public class XFoldLearner extends Learner {
 
     outputTraceStream.println("Specific-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
 
-    return r;
+    return new Pair<>(r, resMap);
   }
 }
