@@ -246,7 +246,7 @@ public class JSONParser {
   }
 
   // Parses a string - either a label or a value
-  private String parseString() throws IOException {
+  public String parseString() throws IOException {
     StringBuilder builder = new StringBuilder();
     int value;
     // Need to make sure we're on a '"'

@@ -478,6 +478,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     Object forKey = get(key);
     if(forKey == null) {
       forKey = new ArrayList();
+      put(key, forKey);
     }
     if(!(forKey instanceof List))
       throw new IllegalArgumentException("Key '"+key+"' is not a list, can't add to it.");
