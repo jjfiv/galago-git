@@ -86,20 +86,37 @@ public class FilteringIteratorTest {
 
     Parameters qp = Parameters.create();
     tree = retrieval.transformQuery(tree, qp);
-    
+
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
-    
-    assertEquals(5, results.size());
+
+    assertEquals(3, results.size());
     int i = 0;
     List<Long> res = new ArrayList<Long>();
-    res.add(1l);
-    res.add(2l);
-    res.add(5l);
-    res.add(3l); // rejected with tinyScore
-    res.add(18l); // rejected with tinyScore
+    res.add(1L);
+    res.add(2L);
+    res.add(5L);
+
     for (ScoredDocument sd : results) {
       assertTrue(res.get(i++) == sd.document);
     }
+
+    tree = StructuredQuery.parse("#combine ( #require( #less( date 1/7/1900 ) a ) ) ");
+
+    qp = Parameters.create();
+    tree = retrieval.transformQuery(tree, qp);
+
+    results = retrieval.executeQuery(tree, qp).scoredDocuments;
+
+    assertEquals(1, results.size());
+    i = 0;
+    res = new ArrayList<Long>();
+    res.add(3L);
+
+    for (ScoredDocument sd : results) {
+      assertTrue(res.get(i++) == sd.document);
+    }
+
+
   }
 
   @Test
