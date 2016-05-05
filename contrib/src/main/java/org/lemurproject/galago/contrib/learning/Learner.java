@@ -48,7 +48,7 @@ public abstract class Learner {
   protected List<RetrievalModelInstance> initialSettings;
   // evaluation cache to avoid recalculating scores for known settings
   protected Map<String, Double> testedParameters;
-  // execution  
+  // execution
   protected int restarts;
   protected boolean threading;
   protected int threadCount;
@@ -97,7 +97,30 @@ public abstract class Learner {
     assert (p.isList("learnableParameters", Parameters.class)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Parameters.class))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
 
-    queries = new QuerySet(JSONQueryFormat.collectQueries(p), p);
+    List<Parameters> queriesParameters;
+    String queryFormat = p.get("queryFormat", "json").toLowerCase();
+    switch (queryFormat)
+    {
+      case "json":
+        queriesParameters = JSONQueryFormat.collectQueries(p);
+        break;
+      case "tsv":
+        queriesParameters = JSONQueryFormat.collectTSVQueries(p);
+        break;
+      default: throw new IllegalArgumentException("Unknown queryFormat: "+queryFormat+" try one of JSON, TSV");
+    }
+
+    for (Parameters query : queriesParameters) {
+      String queryText = query.getString("text");
+
+      // --operatorWrap=sdm will now #sdm(...text... here)
+      if (p.isString("operatorWrap")) {
+        String operator = p.getString("operatorWrap");
+        query.set("text", "#"+operator+"("+queryText+")");
+      }
+    }
+
+    queries = new QuerySet(queriesParameters, p);
     assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
 
     boolean binaryJudgments = p.get("binary", false);
@@ -202,7 +225,7 @@ public abstract class Learner {
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       List<? extends EvalDoc> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
-      
+
       // now unset the backoff (next query will have different backoffs)
       settings.setBackoff(null);
 
