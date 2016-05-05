@@ -34,4 +34,15 @@ public class RequireIterator extends FilteredIterator {
 
   @Override
   public boolean indication(ScoringContext c) { return indicatorItr.indicator(c); }
+
+  @Override
+  public boolean hasMatch(ScoringContext sc) {
+      return indicator(sc);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return indication(c);
+  }
+
 }
