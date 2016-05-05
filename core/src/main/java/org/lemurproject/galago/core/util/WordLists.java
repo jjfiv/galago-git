@@ -3,15 +3,10 @@
  */
 package org.lemurproject.galago.core.util;
 
-import org.lemurproject.galago.tupleflow.Utility;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -25,6 +20,20 @@ public class WordLists {
 
   private static Map<String, Set<String>> wordLists;
 
+  public static HashSet<String> readStreamIgnoringComments(InputStream stream) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+    HashSet<String> set = new HashSet<>();
+    String line;
+
+    while ((line = reader.readLine()) != null) {
+      if(line.startsWith("#")) continue;
+      set.add(line.trim());
+    }
+
+    reader.close();
+    return set;
+  }
+
   @Nullable
   public static Set<String> getWordList(String name) throws IOException {
     if (wordLists == null) {
@@ -34,7 +43,7 @@ public class WordLists {
       Set<String> list;
       File f = new File(name);
       if (f.exists()) {
-        list = Utility.readStreamToStringSet(new BufferedInputStream(new FileInputStream(f)));
+        list = readStreamIgnoringComments(new BufferedInputStream(new FileInputStream(f)));
       } else {
         // try to find word list in "/stopwords/"
         InputStream resourceStream = WordLists.class.getResourceAsStream("/stopwords/" + name);
@@ -49,7 +58,7 @@ public class WordLists {
           }
         }
         // found a stream -- read it.
-        list = Utility.readStreamToStringSet(resourceStream);
+        list = readStreamIgnoringComments(resourceStream);
       }
       // ensure we keep the wordlist (also ensure unmodifiable).
       wordLists.put(name, Collections.unmodifiableSet(list));
