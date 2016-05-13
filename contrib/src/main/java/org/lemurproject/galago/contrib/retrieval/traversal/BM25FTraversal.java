@@ -65,7 +65,7 @@ public class BM25FTraversal extends Traversal {
     if (original.getOperator().equals("bm25f")) {
       // Create the replacing root
       NodeParameters rootP = new NodeParameters();
-      rootP.set("K", weights.get("K", 0.5));
+      rootP.set("K", weights.get("K", queryParams.get("K", 0.5)));
       Parameters cumulativeWeights = weights.get("weights", Parameters.create());
       Parameters smoothing = weights.get("smoothing", Parameters.create());
       Node newRoot = new Node("bm25fcomb", rootP);
@@ -78,7 +78,7 @@ public class BM25FTraversal extends Traversal {
         Node termNode = children.get(i);
         double idf = getIDF(termNode);
         Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights, i, weights.get("K", 0.5),
-                idf);
+                idf, queryParams);
         newRoot.addChild(termCombiner);
         newRoot.getNodeParameters().set("idf" + i, idf);
       }
@@ -104,7 +104,7 @@ public class BM25FTraversal extends Traversal {
   }
 
   private Node createFieldsOfTerm(Node termNode, Parameters smoothingWeights,
-          Parameters cumulativeWeights, int pos, double K, double idf) throws Exception {
+          Parameters cumulativeWeights, int pos, double K, double idf, Parameters queryParams) throws Exception {
     String term = termNode.getDefaultParameter();
 
     // Use a straight weighting - no weight normalization
@@ -120,16 +120,16 @@ public class BM25FTraversal extends Traversal {
 
       // Now wrap it in the scorer
       np = new NodeParameters();
-      np.set("b", smoothingWeights.get(field, weights.get("smoothing_default", 0.5)));
+      np.set("b", smoothingWeights.get(field, queryParams.get("smoothing_" + field, weights.get("smoothing_default", 0.5))));
       np.set("lengths", field);
       np.set("pIdx", pos);
       np.set("K", K);
       np.set("idf", idf);
-      np.set("w", cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
+      np.set("w", cumulativeWeights.get(field, queryParams.get("weight_" + field, weights.get("weight_default", 0.5))));
       Node fieldScoreNode = new Node("bm25field", np);
       fieldScoreNode.addChild(fieldTermNode);
       combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
-              cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
+              cumulativeWeights.get(field, queryParams.get("weight_" + field, weights.get("weight_default", 0.5))));
       combiner.addChild(fieldScoreNode);
     }
 
