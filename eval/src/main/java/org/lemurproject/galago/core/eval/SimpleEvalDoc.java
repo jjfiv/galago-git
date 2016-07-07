@@ -50,6 +50,11 @@ public class SimpleEvalDoc extends Ranked implements EvalDoc {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return name+"\t"+rank+"\t"+score;
+  }
+
 
   public static Comparator<EvalDoc> byAscendingRank = new Comparator<EvalDoc>() {
     @Override
