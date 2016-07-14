@@ -14,11 +14,13 @@ import java.util.logging.Logger;
  *  - This class is meant to ensure that traversals don't 
  *    need to read word lists from files each time a query is run.
  *
+ *    14 July 2016 - this file is now threadsafe - jfoley
+ *
  * @author sjh
  */
 public class WordLists {
 
-  private static Map<String, Set<String>> wordLists;
+  private static final HashMap<String, Set<String>> wordLists = new HashMap<>();
 
   public static HashSet<String> readStreamIgnoringComments(InputStream stream) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
@@ -36,32 +38,31 @@ public class WordLists {
 
   @Nullable
   public static Set<String> getWordList(String name) throws IOException {
-    if (wordLists == null) {
-      wordLists = new HashMap<>();
-    }
-    if (!wordLists.containsKey(name)) {
-      Set<String> list;
-      File f = new File(name);
-      if (f.exists()) {
-        list = readStreamIgnoringComments(new BufferedInputStream(new FileInputStream(f)));
-      } else {
-        // try to find word list in "/stopwords/"
-        InputStream resourceStream = WordLists.class.getResourceAsStream("/stopwords/" + name);
-        if (resourceStream == null) {
-          // try to find word list in specified folder...
-          resourceStream = WordLists.class.getResourceAsStream(name);
-
+    synchronized (wordLists) {
+      if (!wordLists.containsKey(name)) {
+        Set<String> list;
+        File f = new File(name);
+        if (f.exists()) {
+          list = readStreamIgnoringComments(new BufferedInputStream(new FileInputStream(f)));
+        } else {
+          // try to find word list in "/stopwords/"
+          InputStream resourceStream = WordLists.class.getResourceAsStream("/stopwords/" + name);
           if (resourceStream == null) {
-            // give up
-            Logger.getLogger("WordList").warning(String.format("Unable to create resource file."));
-            return null;
+            // try to find word list in specified folder...
+            resourceStream = WordLists.class.getResourceAsStream(name);
+
+            if (resourceStream == null) {
+              // give up
+              Logger.getLogger("WordList").warning(String.format("Unable to create resource file."));
+              return null;
+            }
           }
+          // found a stream -- read it.
+          list = readStreamIgnoringComments(resourceStream);
         }
-        // found a stream -- read it.
-        list = readStreamIgnoringComments(resourceStream);
+        // ensure we keep the wordlist (also ensure unmodifiable).
+        wordLists.put(name, Collections.unmodifiableSet(list));
       }
-      // ensure we keep the wordlist (also ensure unmodifiable).
-      wordLists.put(name, Collections.unmodifiableSet(list));
     }
 
     // otherwise we've already read this list.
