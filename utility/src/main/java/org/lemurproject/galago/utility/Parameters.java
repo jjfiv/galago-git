@@ -74,7 +74,12 @@ public class Parameters implements Serializable, Map<String,Object> {
     JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
     return jp.parse();
   }
-  
+  public static Parameters parseStringOrDie(String data) {
+    try {
+      return parseString(data);
+    } catch (IOException err) { throw new RuntimeException(err); }
+  }
+
   public static Parameters parseReader(Reader reader) throws IOException {
     JSONParser jp = new JSONParser(reader, "<from reader>");
     return jp.parse();
@@ -132,6 +137,21 @@ public class Parameters implements Serializable, Map<String,Object> {
       throw new RuntimeException(ex);
     }
   }
+
+  /**
+   * Compute a reasonable hashcode for any json object; recurses through dispatch on values.
+   * @return a hash code.
+   */
+  @Override
+  public int hashCode() {
+    int hashCode = 0xdeadbeef;
+    hashCode ^= this._data.keySet().hashCode();
+    for (Object val : this._data.values()) {
+      hashCode ^= val.hashCode();
+    }
+    return hashCode;
+  }
+
 
   /**
    * Does NOT consider backoff parameters.

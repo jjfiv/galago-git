@@ -62,6 +62,9 @@ public class Arguments {
 		List<String> reasonableArgs = combineAdjacentIfReasonable(args);
 
 		for (String arg : reasonableArgs) {
+			if(arg.isEmpty()) {
+				continue;
+			}
 			if (looksLikeKey(arg)) {
 				String pattern = arg.substring(2);
 				tokenizeComplexValue(self, pattern);
