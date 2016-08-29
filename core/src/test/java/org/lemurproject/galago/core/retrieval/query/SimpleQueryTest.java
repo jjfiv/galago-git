@@ -37,6 +37,18 @@ public class SimpleQueryTest {
     }
 
     @Test
+    public void testFieldWithSpace() throws IOException   {
+        Node result = SimpleQuery.parseTree("f: a");
+        assertEquals("#combine( #inside( #text:a() #field:f() ) )", result.toString());
+    }
+
+    @Test
+    public void testFieldsWithSpaceAndTabs() throws IOException  {
+        Node result = SimpleQuery.parseTree("f: a  f:   b");
+        assertEquals("#combine( #inside( #text:a() #field:f() ) #inside( #text:b() #field:f() ) )", result.toString());
+    }
+
+    @Test
     public void testPhrase() throws IOException {
         Node result = SimpleQuery.parseTree("\"a b\"");
         assertEquals("#combine( #ordered:1( #text:a() #text:b() ) )", result.toString());
