@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.retrieval.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 
@@ -28,6 +30,8 @@ import org.lemurproject.galago.core.parse.TagTokenizer;
  * @author trevor
  */
 public class SimpleQuery {
+
+    public static final Pattern fixFieldQuery = Pattern.compile(":\\s+");
 
     public static class QueryTerm {
 
@@ -161,8 +165,10 @@ public class SimpleQuery {
         return results;
     }
 
-    public static List<QueryTerm> parse(String query) {
-
+    public static List<QueryTerm> parse(String _query) {
+        // a common issue when searching by field is putting a space between the colon and the term,
+        // so we'll silently correct that here to avoid an exception getting thrown later.
+        String query = fixFieldQuery.matcher(_query).replaceAll(":");
         List<String> textTerms = textQueryTerms(query);
         ArrayList<QueryTerm> parsedTerms = new ArrayList<QueryTerm>();
 
