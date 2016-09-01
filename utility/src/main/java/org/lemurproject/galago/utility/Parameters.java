@@ -74,7 +74,16 @@ public class Parameters implements Serializable, Map<String,Object> {
     JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
     return jp.parse();
   }
-  
+
+  public static Parameters parseStringOrDie(String data) {
+    try {
+      JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
+      return jp.parse();
+    } catch (IOException err) {
+      throw new RuntimeException(err);
+    }
+  }
+
   public static Parameters parseReader(Reader reader) throws IOException {
     JSONParser jp = new JSONParser(reader, "<from reader>");
     return jp.parse();
@@ -131,6 +140,20 @@ public class Parameters implements Serializable, Map<String,Object> {
       Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
       throw new RuntimeException(ex);
     }
+  }
+
+  /**
+   * Recursively compute a reasonable hashCode for Parameter objects. Now they can be keys in a map.
+   * @return a hash code.
+   */
+  @Override
+  public int hashCode() {
+    int hashCode = 0xdeadbeef;
+    hashCode ^= this._data.keySet().hashCode();
+    for (String key : this._data.keySet()) {
+      hashCode ^= this._data.get(key).hashCode();
+    }
+    return hashCode;
   }
 
   /**

@@ -327,6 +327,9 @@ public class ParametersTest {
     p.set("map-a", p.clone());
     p.set("map-b", Parameters.create());
 
+    assertEquals(p, p.clone());
+    assertEquals(p.hashCode(), p.clone().hashCode());
+
     return p;
   }
 
