@@ -41,7 +41,7 @@ public class DocumentNameTest {
 
       DiskNameReader reader = new DiskNameReader(names.getAbsolutePath());
 
-      int key = 15;
+      long key = 15;
       String name = "document_name_key_is_" + key;
 
       String result1 = reader.getDocumentName(key);
