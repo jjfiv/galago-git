@@ -459,7 +459,7 @@ public class LocalRetrieval implements Retrieval {
     }
 
     @Override
-    public String getDocumentName(Integer docid) throws IOException {
+    public String getDocumentName(Long docid) throws IOException {
         return index.getName(docid);
     }
 

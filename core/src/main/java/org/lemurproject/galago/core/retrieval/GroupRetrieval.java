@@ -147,7 +147,7 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public String getDocumentName(Integer docid) throws IOException {
+  public String getDocumentName(Long docid) throws IOException {
     return groups.get(defGroup).getDocumentName(docid);
   }
 
@@ -236,7 +236,7 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getDocumentLength(docname);
   }
 
-  public String getDocumentName(Integer docid, String group) throws IOException {
+  public String getDocumentName(Long docid, String group) throws IOException {
     return groups.get(group).getDocumentName(docid);
   }
 

@@ -90,7 +90,7 @@ public class RankedNonZeroLengthDocumentModelTest {
 
     Set<String> docNames = new HashSet<String>(5);
     for (int i = 0; i < 5; i++) {
-      String name = ret.getDocumentName((int)results[i].document);
+      String name = ret.getDocumentName((long)results[i].document);
       docNames.add(name);
       Document doc = ret.getDocument(name, Document.DocumentComponents.All );
       assertTrue(doc.text.length() > 0);
