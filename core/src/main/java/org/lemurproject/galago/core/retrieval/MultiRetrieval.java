@@ -462,7 +462,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public String getDocumentName(Integer docid) throws IOException {
+  public String getDocumentName(Long docid) throws IOException {
     for (Retrieval r: this.retrievals) {
       String id = r.getDocumentName(docid);
       if(id != null)

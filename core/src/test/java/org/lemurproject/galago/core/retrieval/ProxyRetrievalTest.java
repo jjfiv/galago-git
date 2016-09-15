@@ -124,7 +124,7 @@ public class ProxyRetrievalTest {
 
         instance.getDocumentLength("doc-" + 2);
         instance.getDocumentLength(1);
-        instance.getDocumentName(1);
+        instance.getDocumentName(1L);
 
         ArrayList<String> names = new ArrayList<String>();
         names.add("doc-" + 1);
