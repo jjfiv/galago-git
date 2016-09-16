@@ -123,7 +123,7 @@ public class ProxyRetrievalTest {
         assertTrue(d.metadata.isEmpty());
 
         instance.getDocumentLength("doc-" + 2);
-        instance.getDocumentLength(1);
+        instance.getDocumentLength(1L);
         instance.getDocumentName(1L);
 
         ArrayList<String> names = new ArrayList<String>();

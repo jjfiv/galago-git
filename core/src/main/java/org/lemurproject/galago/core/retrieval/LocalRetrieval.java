@@ -449,7 +449,7 @@ public class LocalRetrieval implements Retrieval {
     }
 
     @Override
-    public Integer getDocumentLength(Integer docid) throws IOException {
+    public Integer getDocumentLength(Long docid) throws IOException {
         return index.getLength(docid);
     }
 

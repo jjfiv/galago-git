@@ -446,7 +446,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Integer getDocumentLength(Integer docid) throws IOException {
+  public Integer getDocumentLength(Long docid) throws IOException {
     throw new UnsupportedOperationException("Not supported.");
   }
 
