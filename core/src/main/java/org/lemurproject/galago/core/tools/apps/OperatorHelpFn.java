@@ -99,7 +99,7 @@ public class OperatorHelpFn extends AppFunction {
 
     if (p.containsKey("operator")) {
       //- Just return information on the operators in the operator list
-      operatorList = p.getList("operator");
+      operatorList = p.getAsList("operator", String.class);
     }
     
     final Map<Class<?>, List<String>> operatorsMap = factory.getOperators();

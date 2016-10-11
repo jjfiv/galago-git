@@ -208,6 +208,28 @@ public class ParametersTest {
   }
 
   @Test
+  public void testInHashMap() {
+    assertEquals(Parameters.parseArray("key", 1), Parameters.parseArray("key", 1));
+    assertNotEquals(Parameters.parseArray("key", 2), Parameters.parseArray("key", 1));
+    assertNotEquals(Parameters.parseArray("key2", 1), Parameters.parseArray("key", 1));
+
+    HashMap<Parameters, Integer> counts = new HashMap<>();
+    for (int item : Arrays.asList(10, 20, 30, 10, 20, 40)) {
+      Parameters key = Parameters.create();
+      key.put("key", item);
+      int prev = counts.getOrDefault(key, 0);
+      counts.put(key, prev+1);
+    }
+
+    System.out.println(counts);
+
+    assertEquals(2, counts.getOrDefault(Parameters.parseArray("key", 10), -1).intValue());
+    assertEquals(2, counts.getOrDefault(Parameters.parseArray("key", 20), -1).intValue());
+    assertEquals(1, counts.getOrDefault(Parameters.parseArray("key", 30), -1).intValue());
+    assertEquals(1, counts.getOrDefault(Parameters.parseArray("key", 40), -1).intValue());
+  }
+
+  @Test
   public void testTrailingCommas() throws Exception {
     Parameters test = Parameters.parseString(" { \"foo\" : [1, 2,3,\t],\n}");
     assertTrue(test.isList("foo"));

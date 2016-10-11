@@ -74,7 +74,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
     return jp.parse();
   }
-
+  
   public static Parameters parseStringOrDie(String data) {
     try {
       JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
@@ -141,7 +141,7 @@ public class Parameters implements Serializable, Map<String,Object> {
       throw new RuntimeException(ex);
     }
   }
-
+  
   /**
    * Recursively compute a reasonable hashCode for Parameter objects. Now they can be keys in a map.
    * @return a hash code.
@@ -155,6 +155,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
     return hashCode;
   }
+
 
   /**
    * Does NOT consider backoff parameters.
