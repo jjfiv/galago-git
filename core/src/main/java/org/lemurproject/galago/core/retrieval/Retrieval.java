@@ -200,7 +200,7 @@ public interface Retrieval extends Closeable {
    * @return document length
    * @throws IOException
    */
-  Integer getDocumentLength(Integer docid) throws IOException;
+  Integer getDocumentLength(Long docid) throws IOException;
 
   /**
    * Returns the length of a particular document. Where docname
@@ -218,7 +218,7 @@ public interface Retrieval extends Closeable {
    * @return document length
    * @throws IOException
    */
-  String getDocumentName(Integer docid) throws IOException;
+  String getDocumentName(Long docid) throws IOException;
 
   /**
    * adds a node to the cache

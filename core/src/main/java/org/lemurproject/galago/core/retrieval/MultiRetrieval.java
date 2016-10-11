@@ -446,7 +446,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Integer getDocumentLength(Integer docid) throws IOException {
+  public Integer getDocumentLength(Long docid) throws IOException {
     throw new UnsupportedOperationException("Not supported.");
   }
 
@@ -462,7 +462,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public String getDocumentName(Integer docid) throws IOException {
+  public String getDocumentName(Long docid) throws IOException {
     for (Retrieval r: this.retrievals) {
       String id = r.getDocumentName(docid);
       if(id != null)
