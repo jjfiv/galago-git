@@ -101,7 +101,7 @@ public class RankedDocumentModelTest {
 
     WorkingSetDocumentModel model = new WorkingSetDocumentModel(ret);
     queryParams.set("working", 
-            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 5l, 6l, 7l, 8l, 11l, 12l, 13l, 14l}));
+            Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 11L, 12L, 13L, 14L}));
     ScoredDocument[] results = model.execute(query, queryParams);
 
     assertEquals(results.length, 10);
@@ -122,8 +122,23 @@ public class RankedDocumentModelTest {
     query = StructuredQuery.parse("#combine( test text 90 )");
     query = ret.transformQuery(query, queryParams);
 
-    queryParams.set("working", 
-            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 5l, 90l, 91l, 92l, 93l, 94l, 95l, 96l, 97l, 98l, 99l}));
+    queryParams.set("working",
+            Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 5L, 90L, 91L, 92L, 93L, 94L, 95L, 96L, 97L, 98L, 99L}));
+
+    results = model.execute(query, queryParams);
+
+    assertEquals(results.length, 10);
+    for (int i = 0; i < 10; i++) {
+      assertEquals(results[i].document, i + 90);
+      assertEquals(results[i].rank, i + 1);
+      if (i > 0) {
+        assert (CmpUtil.compare(results[i].score, results[i - 1].score) <= 0);
+      }
+    }
+
+    // test that external doc IDs can be used in working set
+    queryParams.set("working",
+            Arrays.asList(new String[]{"d-0", "d-1", "d-2", "d-3", "d-4", "d-5", "d-90", "d-91", "d-92", "d-93", "d-94", "d-95", "d-96", "d-97", "d-98", "d-99"}));
 
     results = model.execute(query, queryParams);
 
