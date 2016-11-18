@@ -287,6 +287,19 @@ public class LocalRetrievalTest {
         assert ((results.get(1).document == 2 && results.get(2).document == 5)
                 || (results.get(1).document == 5 && results.get(2).document == 2));
 
+        // test that internal doc IDs can be used in working set
+        List<Long> internal_ids = new ArrayList<>();
+        internal_ids.add(1L);
+        internal_ids.add(2L);
+        internal_ids.add(5L);
+        p.set("working", internal_ids);
+        results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(3, results.size());
+        assertEquals(1, results.get(0).document);
+        assert ((results.get(1).document == 2 && results.get(2).document == 5)
+                || (results.get(1).document == 5 && results.get(2).document == 2));
+
         HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
         realScores.put(1l, -5.548387728381024);
