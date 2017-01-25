@@ -66,7 +66,7 @@ public class WorkingSetTest {
     query = ret.transformQuery(query, queryParams);
     
     WorkingSetExtentModel model = new WorkingSetExtentModel(ret);
-    queryParams.set("working", Arrays.asList(new Long[]{2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l, 11l}));
+    queryParams.set("working", Arrays.asList(new Long[]{2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L}));
     
     ScoredPassage[] results = (ScoredPassage[]) model.execute(query, queryParams);
     
@@ -79,12 +79,27 @@ public class WorkingSetTest {
       assertEquals(results[i].score, -4.74, 0.01);
     }
 
+    // Test that external doc IDs can be used in working set
+    queryParams.set("working",
+            Arrays.asList(new String[]{"d-2", "d-3", "d-4", "d-5", "d-6", "d-7", "d-8", "d-9", "d-10", "d-11"}));
+
+    results = (ScoredPassage[]) model.execute(query, queryParams);
+
+    assertEquals(results.length, 30); // working set * 3
+
+    for (int i = 0; i < 10; i++) {
+      assertEquals(results[i].document, i + 2);
+      assertEquals(results[i].begin, 2);
+      assertEquals(results[i].end, 15 + i);
+      assertEquals(results[i].score, -4.74, 0.01);
+    }
+
     // QUERY 2 ; 3:1
     query = StructuredQuery.parse("#combine( s0 80 )");
     query = ret.transformQuery(query, queryParams);
     
     queryParams.set("working",
-            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 89l, 90l, 91l, 92l, 93l}));
+            Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 89L, 90L, 91L, 92L, 93L}));
     queryParams.set("extentCount", 3);
     queryParams.set("extentShift", 1);
     results = (ScoredPassage[]) model.execute(query, queryParams);
@@ -112,7 +127,7 @@ public class WorkingSetTest {
     query = StructuredQuery.parse("#combine( s0 s1 s2 2 3 )");
     query = ret.transformQuery(query, queryParams);
     
-    queryParams.set("working", Arrays.asList(new Long[]{2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l, 11l}));
+    queryParams.set("working", Arrays.asList(new Long[]{2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L}));
     queryParams.set("extentCount", 2);
     queryParams.set("extentShift", 2);
     results = (ScoredPassage[]) model.execute(query, queryParams);

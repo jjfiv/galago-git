@@ -177,7 +177,7 @@ public class RankedPassageModelTest {
 
     WorkingSetPassageModel model = new WorkingSetPassageModel(ret);
     queryParams.set("working",
-            Arrays.asList(new Long[]{2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l, 11l}));
+            Arrays.asList(new Long[]{2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L}));
 
     ScoredPassage[] results = (ScoredPassage[]) model.execute(query, queryParams);
 
@@ -193,11 +193,29 @@ public class RankedPassageModelTest {
       assertEquals(results[i].score, -4.085500, 0.000001);
     }
 
+    // test that external doc IDs can be used in working set
+    queryParams.set("working",
+            Arrays.asList(new String[]{"d-2", "d-3", "d-4", "d-5", "d-6", "d-7", "d-8", "d-9", "d-10", "d-11"}));
+
+    results = (ScoredPassage[]) model.execute(query, queryParams);
+
+    // --- all documents contain these terms in the first ten words --
+    // -> this query should only ever return the first passage (0-10)
+    // -> and all scores should be equal
+    assertEquals(31, results.length);
+    for (int i = 0; i < 10; i++) {
+      assertEquals(results[i].document, i + 2);
+      assertEquals(results[i].begin, 0);
+      assertEquals(results[i].end, 10);
+      assertEquals(results[i].rank, i + 1);
+      assertEquals(results[i].score, -4.085500, 0.000001);
+    }
+
     query = StructuredQuery.parse("#combine( test text 80 )");
     query = ret.transformQuery(query, queryParams);
 
     queryParams.set("working",
-            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 89l, 90l, 91l, 92l, 93l}));
+            Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 89L, 90L, 91L, 92L, 93L}));
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
     assertEquals(results.length, 100);
