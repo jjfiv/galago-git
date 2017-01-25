@@ -189,6 +189,23 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
     return true;
   }
+
+  public boolean valueEquals(Object lhs, Object rhs) {
+    if (lhs instanceof Number || rhs instanceof Number) {
+      Number ln = (Number) lhs;
+      Number rn = (Number) rhs;
+
+      if(ln instanceof Double || rn instanceof Double) {
+        return ln.doubleValue() == rn.doubleValue();
+      } else if(ln instanceof Long || rn instanceof Long) {
+        return ln.longValue() == rn.longValue();
+      } else {
+        return ln.intValue() == rn.intValue();
+      }
+    } else {
+      return Objects.equals(lhs, rhs);
+    }
+  }
   
   private Object copyValue(Object input) {
     if(input == null) {
