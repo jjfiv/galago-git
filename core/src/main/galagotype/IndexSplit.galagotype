@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type IndexSplit {
+    String index;
+    long begId;
+    long endId;
+    
+    order: +index +begId;
+}
