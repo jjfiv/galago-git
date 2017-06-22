@@ -3,12 +3,12 @@
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.13-SNAPSHOT</version>
+    <version>3.12</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>utility</artifactId>
   <packaging>jar</packaging>
-  <version>3.13-SNAPSHOT</version>
+  <version>3.12</version>
   <name>utility</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>TupleFlow is the distributed computation layer of Galago.</description>
