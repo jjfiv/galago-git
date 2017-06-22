@@ -91,9 +91,7 @@ public class ForwardIndexWriterTest {
     Map<Long, DocTermsInfo> docTermsInfoHM = new HashMap<>();
     Map<Long, DocTermsInfo> trueData = new HashMap<>();
 
-    //File tmp = FileUtility.createTemporary ();
-    String tmpdir = System.getProperty ("java.io.tmpdir");
-    File tmp = new File (tmpdir, "forwardIndexWriterTest");
+    File tmp = File.createTempFile ("forwardIndexWriterTest", ".tmp");
 
     if (!tmp.exists () ) {
       tmp.createNewFile ();
@@ -160,7 +158,7 @@ public class ForwardIndexWriterTest {
       String manifestStringTruth =
               "{ \"blockCount\" : 1 , \"blockSize\" : 16383 , " +
               "\"emptyIndexFile\" : false , " +
-              "\"filename\" : \"/tmp/forwardIndexWriterTest\" , " +
+              "\"filename\" : \"" + fileName + "\" , " +
               "\"fwindexStatistics/docsInCollection\" : 3 , " +
               "\"fwindexStatistics/maxTermFreqInCollection\" : 1 , " +
               "\"fwindexStatistics/totalTermsInCollection\" : 12 , " +
