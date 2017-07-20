@@ -1,0 +1,13 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentTermInfo {
+    long docid;
+    String term;
+    int begPos;
+    int endPos;
+    int begOffs;
+    int endOffs;
+
+    order: +docid +term +begPos;
+    order: +docid;
+}
