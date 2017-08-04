@@ -112,7 +112,8 @@ public class MLMTraversal extends Traversal {
             if (fieldWeights != null && fieldWeights.containsKey(UNIGRAM_FIELD_PREFIX + field)) {
                 fieldWeight = fieldWeights.getDouble(UNIGRAM_FIELD_PREFIX + field);
             } else {
-                fieldWeight = queryParameters.get(UNIGRAM_FIELD_PREFIX + field, 0.0);
+                //fieldWeight = queryParameters.get(UNIGRAM_FIELD_PREFIX + field, 0.0);
+		fieldWeight = queryParameters.get(UNIGRAM_FIELD_PREFIX + field, 1.0);
             }
             nodeweights.set(Integer.toString(i), fieldWeight);
             normalizer += fieldWeight;

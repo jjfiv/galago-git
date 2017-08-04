@@ -113,12 +113,14 @@ public class FieldedSequentialDependenceTraversal extends MLMTraversal {
             if (this.fieldWeights != null && this.fieldWeights.containsKey(ORDERED_FIELD_PREFIX + fields.get(i))) {
                 odFieldWeight = this.fieldWeights.getDouble(ORDERED_FIELD_PREFIX + fields.get(i));
             } else {
-                odFieldWeight = qp.get(ORDERED_FIELD_PREFIX + fields.get(i), 0.0);
+                //odFieldWeight = qp.get(ORDERED_FIELD_PREFIX + fields.get(i), 0.0);
+		odFieldWeight = qp.get(ORDERED_FIELD_PREFIX + fields.get(i), 1.0);
             }
             if (this.fieldWeights != null && this.fieldWeights.containsKey(UNWINDOW_FIELD_PREFIX + fields.get(i))) {
                 uwdFieldWeight = this.fieldWeights.getDouble(UNWINDOW_FIELD_PREFIX + fields.get(i));
             } else {
-                uwdFieldWeight = qp.get(UNWINDOW_FIELD_PREFIX + fields.get(i), 0.0);
+                //uwdFieldWeight = qp.get(UNWINDOW_FIELD_PREFIX + fields.get(i), 0.0);
+		uwdFieldWeight = qp.get(UNWINDOW_FIELD_PREFIX + fields.get(i), 1.0);
             }
             orderedFieldWeights.set(Integer.toString(i), odFieldWeight);
             odNormalizer += odFieldWeight;
