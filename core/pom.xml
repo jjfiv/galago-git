@@ -112,6 +112,27 @@
       <version>4.5</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- This shouldn't be needed for NER extraction but it wants SLF4J logger -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.6</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-parser -->
+    <dependency>
+      <groupId>edu.stanford.nlp</groupId>
+      <artifactId>stanford-corenlp</artifactId>
+      <version>3.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.stanford.nlp</groupId>
+      <artifactId>stanford-corenlp</artifactId>
+      <version>3.7.0</version>
+      <classifier>models</classifier>
+    </dependency>
   </dependencies>
 
   <!-- Define galago build timestamp for use in version.properties -->
