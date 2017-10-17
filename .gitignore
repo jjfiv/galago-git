@@ -1,0 +1,9 @@
+.idea
+nbactions.xml
+nb-configuration.xml
+*.class
+*/target/*
+*.iml
+.idea
+*.prj
+*.trecrun
