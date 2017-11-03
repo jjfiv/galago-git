@@ -25,6 +25,14 @@ import java.util.regex.Pattern;
  * @author sjh
  */
 public class NodeParameters implements Serializable {
+  public void clear() {
+    keyMapping.clear();
+    stringMap = null;
+    boolMap = null;
+    longMap = null;
+    doubleMap = null;
+  }
+
   private static enum Type {
     STRING, LONG, DOUBLE, MAP, BOOLEAN, LIST
   }
