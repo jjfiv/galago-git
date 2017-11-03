@@ -159,7 +159,7 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
-        <version>9.3.5.v20151012</version>
+        <version>9.4.2.v20170220</version>
       </dependency>
       <dependency>
         <groupId>net.sf.trove4j</groupId>

@@ -5,6 +5,8 @@ import org.lemurproject.galago.utility.json.JSONParser;
 import org.lemurproject.galago.utility.json.JSONUtil;
 import org.lemurproject.galago.utility.tools.Arguments;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -37,6 +39,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     _backoff = null;
   }
 
+  @Nonnull
   public static Parameters create() {
     return new Parameters();
   }
@@ -46,6 +49,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     return create();
   }
 
+  @Nonnull
   public static Parameters parseMap(Map<String,String> map) {
     Parameters self = Parameters.create();
     
@@ -56,25 +60,30 @@ public class Parameters implements Serializable, Map<String,Object> {
     return self;
   }
 
+  @Nonnull
   @SuppressWarnings("unchecked")
   public static <T> Parameters wrap(Map<String, T> data) {
     return new Parameters((Map<String, Object>) data);
   }
 
+  @Nonnull
 	public static Parameters parseFile(File f) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(StreamCreator.openInputStream(f)), f.getPath());
     return jp.parse();
   }
   
+  @Nonnull
   public static Parameters parseFile(String path) throws IOException {
     return parseFile(new File(path));
   }
   
+  @Nonnull
   public static Parameters parseString(String data) throws IOException {
     JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
     return jp.parse();
   }
   
+  @Nonnull
   public static Parameters parseStringOrDie(String data) {
     try {
       JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
@@ -84,20 +93,24 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
+  @Nonnull
   public static Parameters parseReader(Reader reader) throws IOException {
     JSONParser jp = new JSONParser(reader, "<from reader>");
     return jp.parse();
   }
   
+  @Nonnull
   public static Parameters parseStream(InputStream iStream) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(iStream), "<from stream>");
     return jp.parse();
   }
   
+  @Nonnull
   public static Parameters parseBytes(byte[] data) throws IOException {
     return parseStream(new ByteArrayInputStream(data));
   }
 
+  @Nonnull
   public static Parameters parseArray(Object... args) {
     if(args.length % 2 == 1) {
       throw new IllegalArgumentException("Uneven number of parameters in vararg constructor.");
@@ -118,7 +131,7 @@ public class Parameters implements Serializable, Map<String,Object> {
    * Ensures items are not shared across parameter objects -- identical keys can
    * be overwritten -- Backoff parameters are copied.
    */
-  public void copyFrom(Parameters other) {
+  public void copyFrom(@Nonnull Parameters other) {
     try {
       JSONParser jp = new JSONParser(new StringReader(other.toString()), "<copyFrom>");
       jp.parse(this);
@@ -132,7 +145,7 @@ public class Parameters implements Serializable, Map<String,Object> {
    * To ensure items are not shared across parameter objects -- identical keys
    * will be overwritten -- Backoff parameters are copied.
    */
-  public void copyTo(Parameters other) {
+  public void copyTo(@Nonnull Parameters other) {
     try {
       JSONParser jp = new JSONParser(new StringReader(toString()), "<copyTo>");
       jp.parse(other);
@@ -207,7 +220,8 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
   
-  private Object copyValue(Object input) {
+  @Nonnull
+  private Object copyValue(@Nonnull Object input) {
     if(input == null) {
       throw new IllegalArgumentException("null given to copyValue()");
     } else if(input instanceof List) {
@@ -226,6 +240,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
   
+  @Nonnull
 	@Override
   public Parameters clone() {
     Parameters copy = Parameters.create();
@@ -248,6 +263,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   // Getters
+  @Nonnull
   public Set<String> getKeys() {
     if (_backoff != null) {
       // have to duplicate this list to get an AddAll function (immutable set)
@@ -258,11 +274,13 @@ public class Parameters implements Serializable, Map<String,Object> {
     return _data.keySet();
   }
 
+  @Nonnull
   public <T> List<T> getList(String key, Class<T> klazz) {
     assert(klazz != null);
     return (List<T>) getList(key);
   }
 
+  @Nonnull
   public List getList(String key) {
     Object val = getOrThrow(key);
     if (val instanceof List) {
@@ -272,6 +290,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
+  @Nonnull
   public List getAsList(String key) {
     Object val = get(key);
     if (val == null || val instanceof NullMarker) {
@@ -283,10 +302,12 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
+  @Nonnull
   public <T> List<T> getAsList(String key, Class<T> ignored) {
     return (List<T>) getAsList(key);
   }
 
+  @Nonnull
   public Parameters getMap(String key) {
     Object val = getOrThrow(key);
     if(val instanceof Parameters) {
@@ -301,6 +322,7 @@ public class Parameters implements Serializable, Map<String,Object> {
    * @param key The key to look for.
    * @return the value of key as a string.
    */
+  @Nonnull
   public String getAsString(String key) {
     if(isString(key)) {
       return getString(key);
@@ -319,6 +341,7 @@ public class Parameters implements Serializable, Map<String,Object> {
    * @param key key object
    * @return note that string values may be null
    */
+  @Nullable
   public String getString(String key) {
     Object val = get(key);
     if(val instanceof NullMarker) {
@@ -420,6 +443,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     return getBoolean(key);
   }
 
+  @Nullable
   public Parameters getBackoff() {
     return _backoff;
   }
@@ -731,6 +755,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     return null;
   }
 
+  @Nonnull
   public Object getOrThrow(String key) {
     if(_data.containsKey(key)) {
       return _data.get(key);
