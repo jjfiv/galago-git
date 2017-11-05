@@ -41,7 +41,7 @@ public class StreamCreator {
     if (filename.endsWith(".gz")) {
       return new DataInputStream(new GZIPInputStream(new FileInputStream(filename)));
     } else if (filename.endsWith(".bz") || filename.endsWith(".bz2")) {
-      return new DataInputStream(new BZip2CompressorInputStream(new FileInputStream(filename)));
+      return new DataInputStream(new BZip2CompressorInputStream(new FileInputStream(filename), true));
     } else if(filename.endsWith(".xz")) {
       return new DataInputStream(new XZInputStream(new FileInputStream(filename)));
     } else {
