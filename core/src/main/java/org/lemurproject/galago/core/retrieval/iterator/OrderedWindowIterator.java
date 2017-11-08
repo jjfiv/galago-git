@@ -63,6 +63,9 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
                     }
                 }
 
+                if (width == -1) {
+                    continue; // always valid setting.
+                }
                 if (arrayIterators[i].currentBegin() - end >= width) {
                     invalid = true;
                     break;
