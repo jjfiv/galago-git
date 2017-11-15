@@ -35,7 +35,7 @@ public class AnnotationsGenerateFnTest {
   private String indexFilePath = null;
   private String trecCorpusFilePath = null;
     
-  //private final String tmpDirStr = System.getProperty ("java.io.tmpdir");
+  private final String tmpDirStr = System.getProperty ("java.io.tmpdir");
 
   //- Simple Text Doc
   private final static String textDocument =     "A text document\n" +
@@ -47,7 +47,7 @@ public class AnnotationsGenerateFnTest {
 
   //- XML Doc
   private final static String xmlDocument =      "<document>\n" +
-                                                 "<title>XML Document on G.W. Carver</title>\n" +
+                                                 "<title>XML Document Test</title>\n" +
                                                  "<person>George Washington Carver</person> lived in\n" +
 					         "<location>Georgia</location>, <location>Missouri</location>\n" +
 					         "and <location>Iowa, USA</location>\n" +
@@ -112,7 +112,7 @@ public class AnnotationsGenerateFnTest {
                                                  "<DOCHDR>\n" +
                                                  "http://myhost/trecweb/nuthin/\n" +
                                                  "</DOCHDR>\n" +
-                                                 "TREC web stories about stuff.\n" +
+                                                 "Web stories about stuff.\n" +
                                                  "Life is like a box of chocolates.\n" +
                                                  "You just never know what you're going to get!\n" +
                                                  "</DOC>\n";
@@ -509,7 +509,8 @@ public class AnnotationsGenerateFnTest {
 
   }  //- end testTrecTextALL
 
-    
+
+  @Test
   public void testTrecWeb () throws Exception {
 
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream ();
@@ -541,7 +542,7 @@ public class AnnotationsGenerateFnTest {
     String[] expectedLines = { trecWebFilePath + "  tw-04  person tom_jones 0 1 0 9",
                                trecWebFilePath + "  tw-04  organization society_of_manufacturing_engineers 4 7 17 51",
                                trecWebFilePath + "  tw-04  person smith 10 11 61 66",
-                               trecWebFilePath + "  tw-04  location paducah_kentucky 24 25 150 166"
+                               trecWebFilePath + "  tw-04  location paducah_kentucky 24 25 152 168"
                              };
 
     //- Output should be 4 lines.
@@ -563,12 +564,14 @@ public class AnnotationsGenerateFnTest {
   }  //- end testTrecWebFile
 
 
+  @Test
   public void testTextFile () throws Exception {
 
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream ();
     PrintStream printStream = new PrintStream (byteArrayStream);
 
-    File textFile = FileUtility.createTemporary ();
+    //File textFile = FileUtility.createTemporary ();
+    File textFile = File.createTempFile (tmpDirStr + File.separator +"tempTextFile", ".txt");
     String textFilePath = textFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (textDocument, textFile);
     
@@ -616,12 +619,14 @@ public class AnnotationsGenerateFnTest {
   }  //- end testTextFile
 
 
+  @Test
   public void testXMLFile () throws Exception {
 
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream ();
     PrintStream printStream = new PrintStream (byteArrayStream);
 
-    File xmlFile = FileUtility.createTemporary ();
+    //File xmlFile = FileUtility.createTemporary ();
+    File xmlFile = File.createTempFile (tmpDirStr + File.separator +"tempXmlFile", ".xml");
     String xmlFilePath = xmlFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (xmlDocument, xmlFile);
     
@@ -643,12 +648,12 @@ public class AnnotationsGenerateFnTest {
     */
 
     //- Expected lines
-    String[] expectedLines = { xmlFilePath + "  " + xmlFilePath + "  person g.w._carver_george_washington_carver 3 7 34 86",
-                               xmlFilePath + "  " + xmlFilePath + "  location georgia 10 11 115 122",
-                               xmlFilePath + "  " + xmlFilePath + "  location missouri 12 13 145 153",
-                               xmlFilePath + "  " + xmlFilePath + "  location iowa 14 15 179 183",
-                               xmlFilePath + "  " + xmlFilePath + "  location usa 16 17 185 188",
-                               xmlFilePath + "  " + xmlFilePath + "  organization naacp 21 22 239 244"
+    String[] expectedLines = { xmlFilePath + "  " + xmlFilePath + "  person george_washington_carver 3 5 52 76",
+                               xmlFilePath + "  " + xmlFilePath + "  location georgia 8 9 105 112",
+                               xmlFilePath + "  " + xmlFilePath + "  location missouri 10 11 135 143",
+                               xmlFilePath + "  " + xmlFilePath + "  location iowa 12 13 169 173",
+                               xmlFilePath + "  " + xmlFilePath + "  location usa 14 15 175 178",
+                               xmlFilePath + "  " + xmlFilePath + "  organization naacp 19 20 229 234"
                              };
 
     //- Output should be 6 lines.
@@ -670,6 +675,7 @@ public class AnnotationsGenerateFnTest {
   }  //- end testXMLFile
 
 
+  @Test
   public void testTrecTextMultiDocs () throws Exception {
 
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream ();
@@ -697,11 +703,11 @@ public class AnnotationsGenerateFnTest {
     */
 
     //- Expected lines
-    String[] expectedLines = { multiDocFilePath + "  " + multiDocFilePath + "  tt-1  organization bureau_of_alcohol_tobacco_and_firearms 8 13 88 126",
-                               multiDocFilePath + "  " + multiDocFilePath + "  tt-1  location maryland 21 22 174 182",
-                               multiDocFilePath + "  " + multiDocFilePath + "  tt-0002  organization university_of_missouri-rolla 16 18 115 143",
-                               multiDocFilePath + "  " + multiDocFilePath + "  tt-0235  organization chrysler 0 1 7 15",
-                               multiDocFilePath + "  " + multiDocFilePath + "  tt-0235  organization chrysler_motors_corp. 5 7 54 75"
+    String[] expectedLines = { multiDocFilePath + "  tt-1  organization bureau_of_alcohol_tobacco_and_firearms 8 13 88 126",
+                               multiDocFilePath + "  tt-1  location maryland 21 22 174 182",
+                               multiDocFilePath + "  tt-0002  organization university_of_missouri-rolla 16 18 115 143",
+                               multiDocFilePath + "  tt-0235  organization chrysler 0 1 7 15",
+                               multiDocFilePath + "  tt-0235  organization chrysler_motors_corp. 5 7 54 75"
                              };
 
     //- Output should be 5 lines.
@@ -723,6 +729,7 @@ public class AnnotationsGenerateFnTest {
   }  //- end testTrecTextMultiDocs
 
 
+  @Test
   public void testNoEntitiesDoc () throws Exception {
 
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream ();
@@ -738,10 +745,10 @@ public class AnnotationsGenerateFnTest {
                            "--annotationTypes=ALL"
 	                 }, printStream);
 
-    String outputLine = byteArrayStream.toString ();
+    String outputLine = byteArrayStream.toString ().trim ();
 
     //- Expected line
-    String expectedLine =  nuthinDocFilePath + "  " + "  [tw-no-entities]  No extractions this document.";
+    String expectedLine =  nuthinDocFilePath + "   " + "[tw-no-entities]  No extractions this document.";
 
     assertEquals (expectedLine, outputLine);
 
