@@ -58,10 +58,11 @@ public class JSONParser {
    * This is a common error routine for printing out the current location in the
    * file before printing the rest of the message.
    *
-   * @throws IOException
+   * @throws IOException Always
+   * @return Never, but anything the function might need, so you can <code>return error("blah")</code>.
    */
-  private void error(String msg) throws IOException {
-    throw new IOException("F: "+fileName+" L:" + line + " C:" + col + ". " + msg);
+  private <T> T error(String msg) throws IOException {
+    throw new IOException("F: "+fileName+" L:" + line + " C:" + col + ". delimiter="+delimiter+ " " + msg);
   }
 
   /**
@@ -207,7 +208,8 @@ public class JSONParser {
       case '7':
       case '8':
       case '9':
-      case '-':
+      case '-': // leading - OK
+      case '+': // leading + OK
         return parseNumber();
     }
     // If we make it here - problem
@@ -332,7 +334,7 @@ public class JSONParser {
         error("File ended while reading in number.");
       }
       c = (char) value;
-    } while (Character.isDigit(c));
+    } while (Character.isDigit(c) || c == '+' || c == '-');
     // If we see a dot, do that subroutine
     if (c == '.') {
       hasDot = true;
@@ -381,12 +383,16 @@ public class JSONParser {
     // and infer type. We don't need to advance b/c we stopped on the
     // non-digit delimiter.
     delimiter = c;
-    if (hasDot) {
-      valueType = Type.DOUBLE;
-      return Double.parseDouble(builder.toString());
-    } else {
-      valueType = Type.LONG;
-      return Long.parseLong(builder.toString());
+    try {
+      if (hasDot) {
+        valueType = Type.DOUBLE;
+        return Double.parseDouble(builder.toString());
+      } else {
+        valueType = Type.LONG;
+        return Long.parseLong(builder.toString());
+      }
+    } catch (NumberFormatException nfe) {
+      return error("Couldn't parse number: "+builder.toString());
     }
   }
 }

@@ -27,6 +27,25 @@ public class ParametersTest {
   }
 
   @Test
+  public void testNumberInput() throws IOException {
+    Parameters input = Parameters.parseString("{\"a\": +17, \"b\": -17, \"c\": +14.0, \"d\": -14.0}");
+    assertEquals(17, input.getInt("a"));
+    assertEquals(-17, input.getInt("b"));
+    assertEquals(14.0, input.getDouble("c"), 1e-7);
+    assertEquals(-14.0, input.getDouble("d"), 1e-7);
+  }
+
+  @Test
+  public void testGetAsDouble() throws IOException {
+    Parameters input = Parameters.parseString("{\"a\": \"NaN\", \"b\": \"-Infinity\", \"c\": \"-17.7\"}");
+    assertTrue(Double.isNaN(input.getAsDouble("a")));
+    assertTrue(Double.isInfinite(input.getAsDouble("b")));
+    assertTrue(input.getAsDouble("b")<0.0);
+    assertEquals(-17.7, input.getAsDouble("c"), 1e-7);
+    assertEquals("-17.7", input.getString("c"));
+  }
+
+  @Test
   public void testAddSimpleData() {
     Parameters p = Parameters.create();
 

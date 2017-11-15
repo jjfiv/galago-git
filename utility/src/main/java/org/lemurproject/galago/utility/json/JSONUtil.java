@@ -109,7 +109,7 @@ public class JSONUtil {
         output.append("\\b");
       } else if(ch == '\f') {
         output.append("\\f");
-      } else if(chx > 127 || chx == 0) { // handle non-ascii and nulls here, gracefully
+      } else if(chx > 127 || chx <= 31) { // handle non-ascii and non-printing here, gracefully
         output.append(String.format("\\u%04x", chx));
       } else {
         output.append(ch);

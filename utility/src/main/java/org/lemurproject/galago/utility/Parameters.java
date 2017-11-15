@@ -297,6 +297,8 @@ public class Parameters implements Serializable, Map<String,Object> {
       return Collections.EMPTY_LIST;
     } else if (val instanceof List) {
       return (List) val;
+    } else if (val instanceof Collection) {
+      return new ArrayList<Object>((Collection) val);
     } else {
       return Arrays.asList(val);
     }
@@ -403,6 +405,27 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(val == null)
       return def;
     return getInt(key);
+  }
+
+  public double getAsDouble(String key) {
+    Object val = getOrThrow(key);
+    if(val instanceof Double) {
+      return (Double) val;
+    } else if(val instanceof Float) {
+      return (Float) val;
+    } else if(val instanceof Long) {
+      return (Long) val;
+    } else if(val instanceof Integer) {
+      return (Integer) val;
+    } else if (val instanceof String) {
+      try {
+        return Double.parseDouble((String) val);
+      } catch (NumberFormatException nfe) {
+        throw new IllegalArgumentException("Key "+key+" does not exist as a Double in parameters object, and could not be parsed as such: "+val, nfe);
+      }
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + val);
+    }
   }
 
   public double getDouble(String key) {
@@ -606,9 +629,13 @@ public class Parameters implements Serializable, Map<String,Object> {
         } else if(isLong(key)) {
           builder.append(getLong(key));
         } else if(isDouble(key)) {
-          builder.append(getDouble(key));
+          encodeDouble(builder, key);
         } else if(isString(key) || isMap(key) || isList(key)) {
           builder.append(emitComplex(get(key)));
+        } else if (get(key) instanceof Collection) {
+          // Handle any collections (in case someone gives us a Set, for instance.
+          // Again, this breaks the perfect symmetry assumption but it prevents us from crashing on reasonable inputs.
+          builder.append(emitComplex(getAsList(key)));
         } else {
           throw new IllegalArgumentException("Unknown object kind: "+get(key).getClass()+" {"+key+": "+get(key)+"}");
         }
@@ -619,6 +646,17 @@ public class Parameters implements Serializable, Map<String,Object> {
 
     builder.append(" }");
     return builder.toString();
+  }
+
+  private void encodeDouble(StringBuilder builder, String key) {
+    double value = getDouble(key);
+    // Encode NaN and -Infinity and +Infinity as string representations.
+    // This breaks the everything in goes out kind of deal, but prevents us from outputting data we can't read.
+    if(Double.isNaN(value) || Double.isInfinite(value)) {
+      builder.append("\"").append(value).append("\"");
+    } else {
+      builder.append(getDouble(key));
+    }
   }
   
   public String toPrettyString() {
@@ -674,13 +712,17 @@ public class Parameters implements Serializable, Map<String,Object> {
         } else if(p.isLong(key)) {
           builder.append(p.getLong(key));
         } else if(p.isDouble(key)) {
-          builder.append(p.getDouble(key));
+          p.encodeDouble(builder, key);
         } else if(p.isString(key)) {
           builder.append(toPrettyString(p.getString(key), internalPrefix, false));
         } else if(p.isMap(key)) {
           builder.append(toPrettyString(p.getMap(key), internalPrefix, false));
         } else if(p.isList(key)) {
           builder.append(toPrettyString(p.getList(key), internalPrefix, false));
+        } else if(p.get(key) instanceof Collection) {
+          // Handle any collections (in case someone gives us a Set, for instance.
+          // Again, this breaks the perfect symmetry assumption but it prevents us from crashing on reasonable inputs.
+          builder.append(toPrettyString(p.getAsList(key), internalPrefix, false));
         } else throw new UnsupportedOperationException(key+"="+p.get(key));
       }
 
