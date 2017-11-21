@@ -137,8 +137,9 @@ public class StructuredLexer {
     tokenCharacters.add('(');
     tokenCharacters.add(',');
     int start = 0;
+    int qlen = query.length ();
 
-    for (int i = 0; i < query.length(); ++i) {
+    for (int i = 0; i < qlen; ++i) {
       char c = query.charAt(i);
       boolean special = tokenCharacters.contains(c) || c == '@' || c == '"';
       boolean isSpace = Character.isWhitespace(c);
@@ -149,7 +150,7 @@ public class StructuredLexer {
         }
 
         if (c == '@') {
-          if (i + 1 < query.length()) {
+          if (i + 1 < qlen) {
             char escapeChar = query.charAt(i + 1);
             int endChar = query.indexOf(escapeChar, i + 2);
 
@@ -159,10 +160,12 @@ public class StructuredLexer {
 
             tokens.add(new Token(query.substring(i + 2, endChar), i, TokenType.SPECIALQUOTE));
             i = endChar;
-          } else {
+          }
+	  else {
             throw new IOException("Lex failure: '@' at end of input sequence.");
           }
-        } else if (c == '"') {
+        }
+	else if (c == '"') {
           // find the end of this escape sequence and break on spaces
           int endChar = query.indexOf('"', i + 1);
           if (endChar < 0) {
@@ -172,8 +175,20 @@ public class StructuredLexer {
           String quotedString = query.substring(i + 1, endChar);
           addQuotedTokens(quotedString, tokens, i);
           i = endChar;
-        } else if (!isSpace) {
-          tokens.add(new Token(Character.toString(c), i, TokenType.TERM));
+        }
+	else if (!isSpace) {
+          boolean badDot = false;
+	    
+          //- If end character is a dot, look ahead to see if there is a field specification
+          //  for the term instead of just an end of sentence period.
+          if (c == '.') {
+	      badDot = ( (i+1 < qlen && Character.isWhitespace (query.charAt (i+1))) ||
+                         (i+1 == qlen) );
+	  }
+	    
+          if (!badDot) {
+            tokens.add(new Token(Character.toString(c), i, TokenType.TERM));
+	  }
         }
 
         start = i + 1;
