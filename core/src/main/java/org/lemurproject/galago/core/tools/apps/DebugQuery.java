@@ -11,6 +11,7 @@ import org.lemurproject.galago.utility.tools.AppFunction;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class DebugQuery extends AppFunction {
     return this.makeHelpStr(
         "index", "The index to search",
         "pretty", "[=true] by default, whether to format the output JSON.",
+        "docid", "Default: missing, but the name of the document to explain",
         "query", "The query to issue to the index and explain.",
         "requested", "The number of results to return");
   }
@@ -41,8 +43,14 @@ public class DebugQuery extends AppFunction {
       Parameters retP = Parameters.create();
       retP.copyFrom(p);
       retP.set("requested", requested);
-      retP.set("processingModel", "rankeddocument");
       retP.set("annotate", true);
+
+      if (p.isString("docid")) {
+        retP.set("working", new ArrayList<>(Collections.singletonList(p.getString("docid"))));
+      } else {
+        // This is a hack because default processing model for a lot of queries is Maxscore/WAND and these don't support annotation.
+        retP.set("processingModel", "rankeddocument");
+      }
 
       Node xq = retrieval.transformQuery(query, retP);
       Results results = retrieval.executeQuery(xq, retP);
