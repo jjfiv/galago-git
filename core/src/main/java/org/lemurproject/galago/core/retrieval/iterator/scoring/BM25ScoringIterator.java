@@ -8,9 +8,12 @@ import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -118,5 +121,20 @@ public class BM25ScoringIterator extends ScoringFunctionIterator implements Delt
     double numerator = count * (k + 1);
     double denominator = count + (k * (1 - b + (b * length / avgDocLength)));
     return idf * numerator / denominator;
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
+    String type = "bm25";
+    String className = this.getClass().getSimpleName();
+    String parameters = np.toString();
+    long document = currentCandidate();
+    boolean atCandidate = hasMatch(c);
+    String returnValue = Double.toString(score(c));
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
+    children.add(this.lengthsIterator.getAnnotatedNode(c));
+    children.add(this.countIterator.getAnnotatedNode(c));
+    String extraInfo = "idf="+idf;
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
   }
 }

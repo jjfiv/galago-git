@@ -3,7 +3,10 @@
  */
 package org.lemurproject.galago.core.retrieval.query;
 
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,5 +82,21 @@ public class AnnotatedNode implements Serializable {
     }
 
     return sb.toString();
+  }
+
+  public Parameters toJSON() {
+    Parameters out = Parameters.create();
+    out.put("type", type);
+    out.put("className", className);
+    out.put("document", document);
+    out.put("atCandidate", atCandidate);
+    out.put("returnValue", returnValue);
+    out.put("extraInfo", extraInfo);
+    List<Parameters> cjson = new ArrayList<>();
+    for (AnnotatedNode child : children) {
+      cjson.add(child.toJSON());
+    }
+    out.put("children", cjson);
+    return out;
   }
 }

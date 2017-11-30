@@ -33,7 +33,7 @@ public class DiskCountIterator extends SourceIterator
 
   @Override
   public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-    String type = "counts";
+    String type = "counts:"+countSrc.key();
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     long document = currentCandidate();
