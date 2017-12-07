@@ -1101,6 +1101,7 @@ public class JobExecutor {
     try {
       webServer = WebServer.start(argp, handler);
       status.masterURL = webServer.getURL();
+      System.out.println("WebServer @ "+webServer.getURL());
       status.run();
       handler.waitForFinalPage();
       webServer.stop();

@@ -117,12 +117,16 @@ public class ForkModeResult implements StageExecutionStatus {
 
   @Override
   public synchronized List<Double> getRunTimes() {
+    long now = System.currentTimeMillis();
     ArrayList<Double> times = new ArrayList<>();
     if (startTimes != null) {
       for (ForkModeProcessRunner job : jobs) {
         long start = startTimes.get(job.getName());
         long end = job.getStopTime();
-        double diff = (end - start + 0.0) / 1000.0;
+        if (end == 0) {
+          end = now;
+        }
+        double diff = (end - start) / 1000.0;
         times.add(diff);
       }
     }

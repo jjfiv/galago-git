@@ -4,6 +4,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.forkmode.ForkModeStageExecutor;
+import org.lemurproject.galago.tupleflow.slurm.SlurmModeStageExecutor;
 import org.lemurproject.galago.utility.reflection.ReflectUtil;
 
 import java.lang.reflect.Constructor;
@@ -45,6 +46,8 @@ public class StageExecutorFactory {
             return new LocalCheckpointedStageExecutor();
         } else if (name.equals("fork")) {
             return new ForkModeStageExecutor(args);
+        } else if (name.equals("slurm")) {
+            return new SlurmModeStageExecutor(args);
         } else if (name.startsWith("drmaa")) {
             // Cache this constructor statically for further calls.
             if(drmaaExecutor == null) {
