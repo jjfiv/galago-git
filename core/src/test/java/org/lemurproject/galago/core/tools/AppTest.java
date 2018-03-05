@@ -205,6 +205,7 @@ public class AppTest {
             PrintStream printStream = new PrintStream(byteArrayStream);
 
             App.run(new String[]{"batch-search",
+                "--showNoResults=true",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile1.getAbsolutePath()}, printStream);
 
@@ -212,7 +213,8 @@ public class AppTest {
             String output = byteArrayStream.toString();
 
             String expectedScores
-                    = "9 Q0 59 1 -1.38562925 galago" + newLine
+                    = "5 Q0 no_results_found 1 -999 galago" + newLine
+                    + "9 Q0 59 1 -1.38562925 galago" + newLine
                     + "9 Q0 55 2 -1.38695903 galago" + newLine
                     + "10 Q0 59 1 -2.08010799 galago" + newLine
                     + "10 Q0 55 2 -2.08143777 galago" + newLine
@@ -360,19 +362,21 @@ public class AppTest {
             queryFile = FileUtility.createTemporary();
             StreamUtil.copyStringToFile(queries, queryFile);
 
-            // Smoke test with batch search
+            //- batch search -- showNoResults=false
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
             PrintStream printStream = new PrintStream(byteArrayStream);
 
             App.run(new String[]{"batch-search",
                 "--index=" + indexFile.getAbsolutePath(),
+                "--showNoResults=true",
                 queryFile.getAbsolutePath()}, printStream);
 
             // Now, verify that some stuff exists
             String output = byteArrayStream.toString();
 
             String expectedScores
-                    = "9 Q0 59 1 -1.38562925 galago" + newLine
+		    = "5 Q0 no_results_found 1 -999 galago" + newLine
+                    + "9 Q0 59 1 -1.38562925 galago" + newLine
                     + "9 Q0 55 2 -1.38695903 galago" + newLine
                     + "10 Q0 59 1 -2.08010799 galago" + newLine
                     + "10 Q0 55 2 -2.08143777 galago" + newLine
@@ -384,6 +388,37 @@ public class AppTest {
                     + "24 Q0 55 2 -1.61889580 galago" + newLine
                     + "25 Q0 59 1 -1.61579296 galago" + newLine
                     + "25 Q0 55 2 -1.61889580 galago" + newLine;
+
+            assertEquals(expectedScores, output);
+
+            //- batch search -- showNoResults=true and --systemName=apptest (must have --trec=true)
+            byteArrayStream = new ByteArrayOutputStream();
+            printStream = new PrintStream(byteArrayStream);
+
+            App.run(new String[]{"batch-search",
+                "--index=" + indexFile.getAbsolutePath(),
+                "--showNoResults=true",
+                "--trec=true",
+                "--systemName=apptest",
+		queryFile.getAbsolutePath()}, printStream);
+
+            // Now, verify that some stuff exists
+            output = byteArrayStream.toString();
+
+            expectedScores
+                    = "5 Q0 no_results_found 1 -999 apptest" + newLine
+                    + "9 Q0 59 1 -1.38562925 apptest" + newLine
+                    + "9 Q0 55 2 -1.38695903 apptest" + newLine
+                    + "10 Q0 59 1 -2.08010799 apptest" + newLine
+                    + "10 Q0 55 2 -2.08143777 apptest" + newLine
+                    + "14 Q0 55 1 -1.73220460 apptest" + newLine
+                    + "14 Q0 59 2 -1.73353440 apptest" + newLine
+                    + "23 Q0 59 1 -1.38562925 apptest" + newLine
+                    + "23 Q0 55 2 -1.38695903 apptest" + newLine
+                    + "24 Q0 59 1 -1.61579296 apptest" + newLine
+                    + "24 Q0 55 2 -1.61889580 apptest" + newLine
+                    + "25 Q0 59 1 -1.61579296 apptest" + newLine
+                    + "25 Q0 55 2 -1.61889580 apptest" + newLine;
 
             assertEquals(expectedScores, output);
 
