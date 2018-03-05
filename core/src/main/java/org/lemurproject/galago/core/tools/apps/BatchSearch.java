@@ -44,11 +44,22 @@ public class BatchSearch extends AppFunction {
             + "     galago batch-search --index=/tmp/myindex --requested=200 /tmp/queries.json \n\n"
             + "  Args:\n"
             + "     --index=path_to_your_index\n"
-            + "     --requested : Number of results to return for each query, default=1000\n"
-            + "     --operatorWrap=operator  : Wrap query text in the specified operator.\n"
-            + "     --queryFormat=json|tsv   : Accept query file in JSON or TSV format.  default=json\n"
-            + "     /path/to/query/file.json : Input file in xml parameters format (see below).\n\n"
-            + "  Query file format:\n"
+            + "     --requested=N               : Number of results to return for each query.  default=1000\n"
+            + "     --operatorWrap=operator     : Wrap query text in the specified operator.\n"
+            + "     --queryFormat=json|tsv      : Accept query file in JSON or TSV format.  default=json\n"
+
+            + "     --showNoResults=true|false  : Print dummy result for queries with no results.\n"
+            + "                                   This ensures query evaluation metrics account for queries\n"
+            + "                                   that returned no results rather than skipping them.\n"
+	    + "                                   Dummy doc will look like the following\n"
+	    + "                                   <qid> Q0 no_results_found 1 -999.9 galago \n"
+            + "                                   default=false\n"
+            + "     --systemName=system_label   : A run label added to a results list queries.  Only available\n"
+            + "                                   in trec mode (--trec=true).  default=galago\n"
+	
+            + "     /path/to/query/file.json    : Input file in xml parameters format (see below).\n\n"
+
+	    + "  Query file format:\n"
             + "    The query file is an JSON file containing a set of queries.  Each query\n"
             + "    has text field, which contains the text of the query, and a number field, \n"
             + "    which uniquely identifies the query in the output.\n\n"
@@ -83,6 +94,15 @@ public class BatchSearch extends AppFunction {
               new FileOutputStream(parameters.getString("outputFile"), append)), true, "UTF-8");
     }
 
+    //- Do we show a no result query dummy doc in output?
+    boolean showNoResults = false;
+    if (parameters.containsKey ("showNoResults")) {
+      showNoResults = parameters.getBoolean ("showNoResults");
+    }
+
+    //- Set a system name for the query submissions
+    String sysName = parameters.get ("systemName", "galago");
+    
     // get queries
     List<Parameters> queries;
     String queryFormat = parameters.get("queryFormat", "json").toLowerCase();
@@ -108,7 +128,6 @@ public class BatchSearch extends AppFunction {
     for (Parameters query : queries) {
       String queryText = query.getString("text");
       String queryNumber = query.getString("number");
-
 
       query.setBackoff(parameters);
       query.set("requested", requested);
@@ -146,12 +165,36 @@ public class BatchSearch extends AppFunction {
 
 
       // if we have some results -- print in to output stream
+      boolean trecFmt = query.get ("trec", false);
+
       if (!results.isEmpty()) {
         for (ScoredDocument sd : results) {
-          if (query.get("trec", false)) {
-            out.println(sd.toTRECformat(queryNumber));
+          if (trecFmt) {
+            //out.println(sd.toTRECformat(queryNumber));
+            out.println (sd.toTRECformat (queryNumber, sysName));
           } else {
-            out.println(sd.toString(queryNumber));
+            //out.println(sd.toString(queryNumber));
+            out.println (sd.toString (queryNumber));
+          }
+        }
+      }
+      // Even if no results, print SOMETHING so we know.  Evaluation metrics
+      // get thrown off when a query is unaccounted for in a ranked list because
+      // nothing was retrieved.  Print dummy document output.
+      else {
+        if (showNoResults) {
+          ScoredDocument sd = new ScoredDocument ();
+          sd.score = -999;
+          sd.rank = 1;
+          sd.documentName = "no_results_found";
+	
+          if (trecFmt) {
+            //out.printf ("%s Q0 no_results_found 1 -999 %s\n", queryNumber, sysName);
+            out.println (sd.toTRECformat (queryNumber, sysName));
+          }
+          else {
+	    //out.printf ("%s Q0 no_results_found 1 -999 galago\n", queryNumber, sysName);
+            out.println (sd.toString (queryNumber));
           }
         }
       }
