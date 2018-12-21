@@ -3,12 +3,12 @@
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.15</version>
+    <version>3.16-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>tupleflow-typebuilder</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>3.15</version>
+  <version>3.16-SNAPSHOT</version>
   <name>tupleflow-typebuilder</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>TypeBuilder generates code for serializing, hashing and comparing tuple objects.</description>
