@@ -3,86 +3,76 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
-import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.utility.tools.AppFunction;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
+import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.tools.Arguments;
 
-import java.lang.*;
-import java.util.Iterator;
-import java.util.Arrays;
+import java.io.File;
+import java.io.PrintStream;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.HashMap;
-import java.io.PrintStream;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.File;
-
 import java.util.logging.Logger;
 
 
+
 /**
- *
  * @author smh
  */
 public class DumpDocTermsFn extends AppFunction {
 
-  public static final Logger logger = Logger.getLogger("DumpDocTermsFn");
+    public static final Logger logger = Logger.getLogger("DumpDocTermsFn");
 
 
-  public static void main (String[] args) throws Exception {
-    (new DumpDocTermsFn()).run(Arguments.parse(args), System.out);
-  }  //- end main
+    public static void main(String[] args) throws Exception {
+        (new DumpDocTermsFn()).run(Arguments.parse(args), System.out);
+    }  //- end main
 
 
-  @Override
-  public String getName() {
-    return "dump-doc-terms";
-  }
-
-
-  @Override
-  public String getHelpString() {
-    return "galago dump-doc-terms --index=<index_part> --iidList=<list_of_iids> --eidList=<list_of_eids>\n\n"
-            + "  Dumps the term statistics from various inverted list data for one or more specified\n"
-            + "  documents.  Term statistics are output in CSV format.\n\n"
-            + "  Also provided are internal and external document IDs, maxTF, term count and total word\n"
-            + "  statistics for each document listed.\n\n"
-            + "  Internal and External document IDs are specified using the appropriate command line flag.\n"
-            + "  One must use a trailing comma if only one IID is specified so the processor knows it is a string\n"
-            + "  and not a number.  If spaces are placed between listed IDs, the entire ID string should be quoted.\n\n";
-  }
-
-
-  @Override
-  public void run (Parameters p, PrintStream output) throws Exception {
-
-    // Parameter check
-    assert (p.isString ("index")) : "dump-doc-terms requires an 'index' paramter.";
-    assert (p.containsKey("iidList") || p.containsKey("eidList")) : "dump-doc-terms requires an 'iidList' and/or 'eidList' parameter.";
-
-
-    String eid = null;
-    long   iid = 0L;
-
-
-    //- Must have an index root defined.
-    if (!p.containsKey ("index") || (!p.containsKey("iidList") && !p.containsKey("eidList"))) {
-      output.println ("No index defined or missing a doc ID list.");
-      output.println (this.getHelpString());
-      return;
+    @Override
+    public String getName() {
+        return "dump-doc-terms";
     }
+
+
+    @Override
+    public String getHelpString() {
+        return "galago dump-doc-terms --index=<index_part> --iidList=<list_of_iids> --eidList=<list_of_eids>\n\n"
+                + "  Dumps the term statistics from various inverted list data for one or more specified\n"
+                + "  documents.  Term statistics are output in CSV format.\n\n"
+                + "  Also provided are internal and external document IDs, maxTF, term count and total word\n"
+                + "  statistics for each document listed.\n\n"
+                + "  Internal and External document IDs are specified using the appropriate command line flag.\n"
+                + "  One must use a trailing comma if only one IID is specified so the processor knows it is a string\n"
+                + "  and not a number.  If spaces are placed between listed IDs, the entire ID string should be quoted.\n\n";
+    }
+
+
+    @Override
+    public void run(Parameters p, PrintStream output) throws Exception {
+
+        // Parameter check
+        assert (p.isString("index")) : "dump-doc-terms requires an 'index' paramter.";
+        assert (p.containsKey("iidList") || p.containsKey("eidList")) : "dump-doc-terms requires an 'iidList' and/or 'eidList' parameter.";
+
+
+        String eid = null;
+        long iid = 0L;
+
+
+        //- Must have an index root defined.
+        if (!p.containsKey("index") || (!p.containsKey("iidList") && !p.containsKey("eidList"))) {
+            output.println("No index defined or missing a doc ID list.");
+            output.println(this.getHelpString());
+            return;
+        }
 /*
     // Support print to file
     if (p.isString("outputFile")) {
@@ -91,216 +81,126 @@ public class DumpDocTermsFn extends AppFunction {
                new FileOutputStream(p.getString("outputFile"), append)), true,  "UTF-8");
     }
 */
-    // This is the postings index string
-    String index = p.getString ("index");
 
-    // But for getting internal and external doc IDs, we need the index root
-    int lastSlash = index.lastIndexOf (File.separator);
-    String indexRoot = index.substring (0, lastSlash);
+        // This is the postings index string
+        String index = p.getString("index");
 
-    Map<Long, String> iid2eidTM = new TreeMap<>();
-
-    //- Figure out External IDs from provided Internal ID's if prsent
-    if (p.containsKey ("iidList")) {
-      String idsStr = p.getString ("iidList");
-      String[] toks = idsStr.split ("[ ,]+");
-    
-      int len = toks.length;
-
-      if (len > 0) {
-        DiskNameReader dnr = new DiskNameReader (indexRoot + File.separator +"names");
-
-        for (String id : toks) {
-          iid = Long.parseLong (id);
-          eid = dnr.getDocumentName (iid);
-
-          if (!iid2eidTM.containsKey (iid)) {
-            iid2eidTM.put (iid, eid);
-          }
+        Stemmer  stemmer = null;
+        // check if they want stemmed terms
+        if (index.endsWith("porter")){
+            stemmer = new Porter2Stemmer();
+        }
+        if (index.endsWith("krovetz")){
+            stemmer = new KrovetzStemmer();
         }
 
-        dnr.close();
-      }
-    }
+        // But for getting internal and external doc IDs, we need the index root
+        int lastSlash = index.lastIndexOf(File.separator);
+        String indexRoot = index.substring(0, lastSlash);
 
-    //- Do the same thing as above for any provided External IDs
-    if (p.containsKey ("eidList")) {
-      long badIDCounter = 0;
+        Map<Long, String> iid2eidTM = new TreeMap<>();
 
-      String idsStr = p.getString ("eidList");
-      String[] toks = idsStr.split ("[ ,]+");
-    
-      int len = toks.length;
+        //- Figure out External IDs from provided Internal ID's if prsent
+        if (p.containsKey("iidList")) {
+            String idsStr = p.getString("iidList");
+            String[] toks = idsStr.split("[ ,]+");
 
-      if (len > 0) {
-        DiskNameReverseReader dnrr = new DiskNameReverseReader (indexRoot + File.separator + "names.reverse");
-  
-        for (String eidStr : toks) {
-          iid = dnrr.getDocumentIdentifier (eidStr);
+            int len = toks.length;
 
-          if (iid == -1) {
-            iid = -1 - badIDCounter;
-            badIDCounter++;
-          }
+            if (len > 0) {
+                DiskNameReader dnr = new DiskNameReader(indexRoot + File.separator + "names");
 
-          if (!iid2eidTM.containsKey (iid)) {
-            iid2eidTM.put (iid, eidStr);
-          }
-	     }
+                for (String id : toks) {
+                    iid = Long.parseLong(id);
+                    eid = dnr.getDocumentName(iid);
 
-        dnrr.close();
-      }
-    }
+                    if (!iid2eidTM.containsKey(iid)) {
+                        iid2eidTM.put(iid, eid);
+                    }
+                }
 
-    //- Open postings index and get stats for each target doc
-    Map<Long, ArrayList<String>> iid2statslistsHM = new HashMap<>();
-    Map<Long, Integer>    iid2tcHM = new HashMap<>();  // doc term counts
-    Map<Long, Integer>    iid2mtfHM = new HashMap<>(); // doc max term freq
-    Map<Long, Integer>    iid2twHM = new HashMap<>();  // doc total words (indexed)
-    ArrayList<String>     currentStatsList = null;
-    long              currentIID = 0L;
-    String            currentEID = null;
-    int               currentMaxTF = 0;
-    int               currentTermCount = 0;
-    int               currentTotalWords = 0;
-
-    IndexPartReader ipr = DiskIndex.openIndexPart (index);
-
-    if (ipr.getManifest().get ("emptyIndexFile", false)) {
-      System.out.println ("Empty Index File.  Quitting.");
-      return;
-    }
-
-    KeyIterator iterator = ipr.getIterator ();
-
-    // if we have a key-list index 
-    if (KeyListReader.class.isAssignableFrom (ipr.getClass())) {
-
-      // Iterate through all term keys paying attention only to entries from
-      // docs of interest to us.
-      while (!iterator.isDone()) {
-        BaseIterator vIter = iterator.getValueIterator ();
-        ScoringContext sc = new ScoringContext ();
-
-        while (!vIter.isDone()) {
-          sc.document = vIter.currentCandidate();
-          long currentDocID = sc.document;
-
-          // Get stats if we are interested in this doc
-          if (iid2eidTM.containsKey (currentDocID)) {
-            String statsStr = vIter.getValueString (sc);
-            String[] postingParts =  statsStr.split (",");
-            int tf = postingParts.length - 2;
-              
-            // Add term stats
-            if (!iid2statslistsHM.containsKey (currentDocID)) {
-              currentStatsList = new ArrayList<>();
+                dnr.close();
             }
-            else {
-              currentStatsList = iid2statslistsHM.get (currentDocID);
-	    }
-
-            currentStatsList.add (statsStr);
-            iid2statslistsHM.put (currentDocID, currentStatsList);
-
-            // Update Max TF
-            if (iid2mtfHM.containsKey(currentDocID)) {
-              currentMaxTF = iid2mtfHM.get(currentDocID);
-            }
-            else {
-              currentMaxTF = 0;
-            }
-
-            if (tf > currentMaxTF) {
-              iid2mtfHM.put (currentDocID, tf);
-            }
-
-            // Update total word countd
-            if (iid2twHM.containsKey(currentDocID)) {
-              currentTotalWords = iid2twHM.get(currentDocID);
-            }
-            else {
-              currentTotalWords = 0;
-            }
-            currentTotalWords += tf;
-            iid2twHM.put (currentDocID, currentTotalWords);
-
-            // Update term count
-            if (iid2tcHM.containsKey(currentDocID)) {
-              currentTermCount = iid2tcHM.get(currentDocID);
-            }
-            else {
-              currentTermCount = 0;
-            }
-            currentTermCount ++;
-            iid2tcHM.put (currentDocID, currentTermCount);
-	  }
-
-          vIter.movePast (vIter.currentCandidate());
-        }
-        iterator.nextKey();
-      }
-    }
-
-    /* NOT RELEVANT TO POSTINGS TASK but left in "just in case"
-     *   A KeyValueReader is used on indexes such as names and reverse.names so shouldn't
-     *   be needed for posting statistics.  Testing showed this code was not used for
-     *   postings, extents and field index files.
-    // otherwise we could have a key-value index
-    else if (KeyValueReader.class.isAssignableFrom (ipr.getClass())) {
-      while (!iterator.isDone ()) {
-        String valuesStr = (iterator.getKeyString() + "," + iterator.getValueString());
-        System.out.println ("Values String: " + valuesStr);
-        String[] postingParts =  valuesStr.split (",");
-        int freq = postingParts.length - 2;
-        String termStr = postingParts[0];
-        String docIdStr = postingParts[1];
-        System.out.println ("Term: " + termStr + "\t DocID: " + docIdStr + "\t Freq: " + freq);
-
-        iterator.nextKey();
-      }
-    }
-    */
-    else {
-      System.out.println ("Unable to read index as a key-list or a key-value reader.");
-    }
-
-    ipr.close ();
-
-    // Dump the info we've accumulated.
-    for (Map.Entry<Long, String> entry : iid2eidTM.entrySet()) {
-      iid = entry.getKey();
-      eid = entry.getValue();
-
-      // If a provided IID had no corresponding EID, the IID is what was provided and the
-      // EID is null.
-      if (iid < 0) {
-        output.println ("Doc: ---\t[" + eid + "]\tDoc ID does not exist");
-      }
-      // If the IID was < 0, then the provided EID did not exist so print out the provided
-      // IID only.
-      else if (eid == null) {
-        output.println ("Doc: " + iid + "\t[ --- ]\tDoc ID does not exist");
-      }
-      else {
-        int termCount = iid2tcHM.get (iid);
-        int totalWords = iid2twHM.get (iid);
-        int maxTF = iid2mtfHM.get (iid);
-
-        output.println ("Doc: " + iid + " [" + eid 
-                       + "]\tTerm Count: " + termCount 
-                       + "\tTotal Words: " + totalWords 
-                       + "\tMax TF: " + maxTF);
-
-        currentStatsList = iid2statslistsHM.get (iid);
-
-        for (String statsStr : currentStatsList) {
-          output.println ("\t" + statsStr);
         }
 
-        output.println ("");
-      }
-    }
-  }  //- end run
+        //- Do the same thing as above for any provided External IDs
+        if (p.containsKey("eidList")) {
+            long badIDCounter = 0;
+
+            String idsStr = p.getString("eidList");
+            String[] toks = idsStr.split("[ ,]+");
+
+            int len = toks.length;
+
+            if (len > 0) {
+                DiskNameReverseReader dnrr = new DiskNameReverseReader(indexRoot + File.separator + "names.reverse");
+
+                for (String eidStr : toks) {
+                    iid = dnrr.getDocumentIdentifier(eidStr);
+
+                    if (iid == -1) {
+                        iid = -1 - badIDCounter;
+                        badIDCounter++;
+                    }
+
+                    if (!iid2eidTM.containsKey(iid)) {
+                        iid2eidTM.put(iid, eidStr);
+                    }
+                }
+
+                dnrr.close();
+            }
+        }
+
+        LocalRetrieval retrieval = new LocalRetrieval(indexRoot, Parameters.create());
+        // Dump the info we've accumulated.
+        for (Map.Entry<Long, String> entry : iid2eidTM.entrySet()) {
+            iid = entry.getKey();
+            eid = entry.getValue();
+
+            // If a provided IID had no corresponding EID, the IID is what was provided and the
+            // EID is null.
+            if (iid < 0) {
+                output.println("Doc: ---\t[" + eid + "]\tDoc ID does not exist");
+            }
+            // If the IID was < 0, then the provided EID did not exist so print out the provided
+            // IID only.
+            else if (eid == null) {
+                output.println("Doc: " + iid + "\t[ --- ]\tDoc ID does not exist");
+            } else {
+
+                // MCZ - old code iterated through the entire postings list and
+                // collected statistics - not very efficient of you're using this
+                // on a collection such as ClueWeb. So, modifying to get them from
+                // the actual document.
+                Document doc = retrieval.getDocument(eid, new Document.DocumentComponents(true, true, true));
+                Map<String, List<Integer>> termPos = doc.getTermPositions(stemmer);
+
+                StringBuilder sb = new StringBuilder();
+                long maxTF = 0;
+
+                for (Map.Entry<String, List<Integer>> entry2 : termPos.entrySet()) {
+                    String term = entry2.getKey();
+                    List<Integer> pos = entry2.getValue();
+                    sb.append(term + "," + iid);
+                    if (pos.size() > maxTF) {
+                        maxTF = pos.size();
+                    }
+                    for (Integer i : pos) {
+                        sb.append("," + i);
+                    }
+                    sb.append("\n");
+                }
+
+                output.println("Doc: " + iid + " [" + eid
+                        + "]\tTerm Count: " + termPos.size()
+                        + "\tTotal Words: " + doc.terms.size()
+                        + "\tMax TF: " + maxTF);
+
+                output.println(sb.toString());
+
+            }
+        }
+    }  //- end run
 
 }  //- end class
