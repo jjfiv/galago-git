@@ -43,9 +43,10 @@ public class Eval extends AppFunction {
             + "                               If specified -> comparion evaluation - see below.\n"
             + "                               If NOT specified -> single evaluation - see below.\n"
             + "  --limit+{qid}         : [Optional]  A list of query identifiers. Runs will be subset to\n"
-            + "                                        these queries before comparisons or calculations."
+            + "                                        these queries before comparisons or calculations.\n"
             + "  --runs+{filename}       : [Optional]  A list of retrieved ranked lists from a particular set of queries.\n"
             + "                               If specified -> set evaluation - see below.\n"
+            + "  --precision={number}    : [Optional]  If using 'runs', this is how many decimal places will be used.\n"
             + "  --summary={true|false}  : [Optional]  Chooses to print a summary of results - query number = \"all\"\n"
             + "                               [default=true]\n"
             + "  --details={true|false}  : [Optional]  Chooses to print a detailed set of results - one set for each query.\n"
@@ -215,7 +216,8 @@ public class Eval extends AppFunction {
     String ln = p.get("ln", " ");     // latex : " \\\\ \\hline"
     String sig = p.get("sig", "*");   // latex : " ^{+} "
     String neg = p.get("negsig", ""); // latex : " ^{-} "
-    String prec = p.get("precision", "3");
+    Integer iprec = p.get("precision", 3);
+    String prec = iprec.toString();
 
     double thresh = p.get("thresh", 0.05);
 
