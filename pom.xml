@@ -52,7 +52,6 @@
   <modules>
     <module>contrib</module>
     <module>core</module>
-    <module>tupleflow-gridengine</module>
     <module>tupleflow</module>
     <module>tupleflow-typebuilder</module>
     <module>eval</module>

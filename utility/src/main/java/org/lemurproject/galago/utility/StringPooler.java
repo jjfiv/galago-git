@@ -24,7 +24,7 @@ public class StringPooler {
 		return _instance;
 	}
 
-  /** Disable string pooling; probably not needed unless you're in a huge drmaa job. */
+  /** Disable string pooling */
   public static void disable() {
     _instance = new StringPooler() {
       @Override public void transform(List<String> terms) { }
