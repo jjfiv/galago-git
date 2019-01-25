@@ -17,7 +17,7 @@ public class GalagoConf {
   private static final Logger LOG = Logger.getLogger(GalagoConf.class.getName());
  
   private static final Parameters preferences = Parameters.create();
-  private static final Parameters drmaaOptions = Parameters.create();
+  private static final Parameters memoryOptions = Parameters.create();
   private static final Parameters sorterOptions = Parameters.create();
   
   public static List<File> findGalagoConfigFiles() {
@@ -57,8 +57,8 @@ public class GalagoConf {
       LOG.warning("Unable to locate or read ~/.galago.conf or .galago.conf file. Using default settings, including tmpdir.\n" + ioe.getMessage());
     }
 
-    if (preferences.containsKey("drmaa")) {
-      drmaaOptions.copyFrom(preferences.getMap("drmaa"));
+    if (preferences.containsKey("memory")) {
+      memoryOptions.copyFrom(preferences.getMap("memory"));
     }
 
     if (preferences.containsKey("sorter")) {
@@ -74,11 +74,11 @@ public class GalagoConf {
   }
 
   /**
-   * @return Drmaa parameters
+   * @return memory parameters
    *
    */
-  public static Parameters getDrmaaOptions() {
-    return drmaaOptions;
+  public static Parameters getMemoryOptions() {
+    return memoryOptions;
   }
 
   /**

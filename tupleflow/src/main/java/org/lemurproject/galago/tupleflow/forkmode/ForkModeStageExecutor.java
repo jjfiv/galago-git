@@ -23,9 +23,7 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
 
   // Flag to set the verbose mode (either on or off)
   public boolean verbose;
-  // For use with user-defined native specifications
-  public String nativeSpecification_each;
-  public String nativeSpecification_combined;
+
   // Use the 'java' specified in the env. variable JAVA_HOME --
   // we don't know what version of java the user called us with :(
   public String command = System.getenv("JAVA_HOME") + File.separator
@@ -49,11 +47,11 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
   public String nodeTempDir;
 
   /**
-   * <p>Creates a new create of DRMAAExecutor.</p>
+   * <p>Creates a new ForkModeStageExecutor.</p>
    *
    * @param args     An array; if it contains anything, the first
    *                 element is used as the command when submitting
-   *                 jobs to DRMAA.
+   *                 jobs.
    */
   public ForkModeStageExecutor(String[] args) {
     assert(System.getenv("JAVA_HOME") != null);
@@ -62,23 +60,12 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
     setMemoryUsage(MEMORY_X, MEMORY_S);
     nodeTempDir = NODE_TEMP_DIR;
     verbose = false;
-    nativeSpecification_each = "-w n";
-    nativeSpecification_combined = "-w n";
 
-    Parameters defaults = GalagoConf.getDrmaaOptions();
+    Parameters defaults = GalagoConf.getMemoryOptions();
     if (defaults.containsKey("mem")) {
       String mem = defaults.getString("mem");
       assert (!mem.startsWith("-X")) : "Error: mem parameter in .galago.conf file should not start with '-Xmx' or '-Xms'.";
       setMemoryUsage("-Xmx" + defaults.getString("mem"), "-Xms" + defaults.getString("mem"));
-    }
-    if (defaults.containsKey("nativeSpec")) {
-      setNativeSpecification(defaults.getString("nativeSpec"));
-    }
-    if (defaults.containsKey("nativeSpecEach")) {
-      nativeSpecification_each = nativeSpecification_each + " " + defaults.getString("nativeSpecEach");
-    }
-    if (defaults.containsKey("nativeSpecCombined")) {
-      nativeSpecification_combined = nativeSpecification_combined + " " + defaults.getString("nativeSpecCombined");
     }
 
     // customize based upon arguments
@@ -95,24 +82,6 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
       }
     }
 
-    /*
-    try {
-      session = SessionFactory.getFactory().getSession();
-      session.init("");
-    } catch (DrmaaException e) {
-      logger.log(Level.WARNING, e.getMessage(), e);
-    }
-    */
-  }
-
-  /**
-   * <p>Sets a native specification.</p>
-   *
-   * @param nativeSpecification The specification to set.
-   */
-  public void setNativeSpecification(String nativeSpecification) {
-    this.nativeSpecification_each = nativeSpecification_each + " " + nativeSpecification;
-    this.nativeSpecification_combined = nativeSpecification_combined + " " + nativeSpecification;
   }
 
   /**
@@ -167,7 +136,7 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
 
         ProcessBuilder pb = new ProcessBuilder();
         pb.command(arguments);
-        // not exactly the DRMAA convention, but clearer, IMHO -jfoley
+
         pb.redirectError(new File(jobPaths.get(i)+".stderr"));
         pb.redirectOutput(new File(jobPaths.get(i) + ".stdout"));
         pb.directory(new File(".")); // transfer CWD

@@ -32,11 +32,6 @@ import java.util.concurrent.ExecutionException;
  * connections. After the plan is generated, the job is sent to a StageExecutor
  * for the low-level details of execution.</p>
  *
- * <p>TupleFlow has many different kinds of StageExecutors you can use. To get
- * started and to debug your code, use the LocalStageExecutor or
- * ThreadedExecutor. To harness more parallelism, use the SSHStageExecutor or
- * the DRMAAStageExecutor.</p>
- *
  * <p>(12/01/2010, irmarc): Added a bit of code to print out the server url on
  * command. Hit 'space' to see it.</p>
  *
