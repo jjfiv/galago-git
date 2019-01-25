@@ -4,8 +4,7 @@
 package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
-import org.lemurproject.galago.core.btree.format.BTreeFactory;
-import org.lemurproject.galago.utility.btree.BTreeReader;
+
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.VersionInfo;

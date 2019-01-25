@@ -20,8 +20,6 @@ import org.lemurproject.galago.core.types.DocumentTermInfo;
 
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.logging.Logger;
 import java.io.File;
 import java.io.IOException;

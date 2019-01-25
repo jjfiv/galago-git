@@ -9,8 +9,6 @@ import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.Parameters;
 
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
-
 import java.io.File;
 import java.util.Map;
 import java.util.HashMap;

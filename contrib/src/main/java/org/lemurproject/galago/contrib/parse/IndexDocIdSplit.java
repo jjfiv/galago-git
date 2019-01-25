@@ -18,7 +18,6 @@ import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
