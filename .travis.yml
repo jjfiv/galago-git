@@ -1,4 +1,3 @@
-before_install: ./scripts/installlib.sh
 language: java
 jdk:
   - oraclejdk8
