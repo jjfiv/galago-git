@@ -13,7 +13,6 @@ import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.*;
-import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
 import org.lemurproject.galago.utility.FSUtil;

@@ -3,7 +3,6 @@ package org.lemurproject.galago.core;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert.*;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.utility.StreamUtil;
 

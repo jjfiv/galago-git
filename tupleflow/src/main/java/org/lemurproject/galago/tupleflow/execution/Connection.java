@@ -3,7 +3,6 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import java.util.ArrayList;
 import org.lemurproject.galago.tupleflow.CompressionType;
-import org.lemurproject.galago.tupleflow.execution.Job.StagePoint;
 
 /**
  * Represents a data connection between two stages in a TupleFlow job.

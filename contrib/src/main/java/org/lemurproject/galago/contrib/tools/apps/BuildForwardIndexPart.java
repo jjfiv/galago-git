@@ -10,7 +10,6 @@ import org.lemurproject.galago.contrib.parse.ForwardIndexReduce;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.IndexSplit;
 import org.lemurproject.galago.core.types.DocumentTermInfo;
-import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.Parameters;
@@ -22,8 +21,6 @@ import org.lemurproject.galago.utility.VersionInfo;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**

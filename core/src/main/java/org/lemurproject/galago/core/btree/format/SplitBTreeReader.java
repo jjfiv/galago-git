@@ -14,8 +14,6 @@ import org.lemurproject.galago.utility.buffer.DataStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * Split index reader

@@ -2,8 +2,6 @@
 package org.lemurproject.galago.contrib.index.disk;
 
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.contrib.parse.ForwardIndexReduce;
-import org.lemurproject.galago.contrib.parse.DocTermsInfo;
 import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.InputClass;

@@ -7,12 +7,8 @@ import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Map;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 
