@@ -77,7 +77,7 @@ public class GalagoConf {
    * @return memory parameters
    *
    */
-  public static Parameters threaded() {
+  public static Parameters getMemoryOptions() {
     return memoryOptions;
   }
 
