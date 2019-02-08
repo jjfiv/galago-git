@@ -34,7 +34,7 @@ public class StageExecutorFactory {
                 return null;
             }
         } else if (name.startsWith("thread")) {
-            return new ThreadedCheckpointedStageExecutor();
+            throw new IllegalArgumentException("Sorry, in order to use mode=threaded, you'll have to use a version of Galago less than 3.16");
         } else if (name.startsWith("ssh")) {
             return new SSHStageExecutor(args[0], Arrays.asList(Utility.subarray(args, 1)));
         } else if (name.equals("remotedebug")) {
