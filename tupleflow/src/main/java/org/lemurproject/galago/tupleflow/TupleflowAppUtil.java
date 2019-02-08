@@ -18,7 +18,7 @@ public class TupleflowAppUtil {
     return "Tupleflow Flags:\n"
             + "  --printJob={true|false}: Simply prints the execution plan of a Tupleflow-based job then exits.\n"
             + "                           [default=false]\n"
-            + "  --mode={local|threaded|slurm}: Selects which executor to use \n"
+            + "  --mode={local|threaded|slurm|fork}: Selects which executor to use \n"
             + "                           [default=local]\n"
             + "  --port={int<65000} :     port number for web based progress monitoring. \n"
             + "                           [default=randomly selected free port]\n"
