@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -27,14 +25,14 @@ import static org.junit.Assert.assertTrue;
  * @author sjh, smh
  */
 public class DumpDocTermsFnTest {
+    
+    private static File trecCorpusFile = null;
+    private static File indexFile = null;
+    private static File childPath = null;
+ 
 
-  File trecCorpusFile = null;
-  File indexFile = null;
-  File childPath = null;
-  File childPathStemmed = null;
-
-  @Before
-  public void setUp() throws Exception {
+  @BeforeClass
+  static public void setUp() throws Exception {
 
 
     String trecCorpus = AppTest.trecDocument ("AP890101-0001", "First doc.\n<HEAD>60s films are here</HEAD>"
@@ -70,8 +68,8 @@ public class DumpDocTermsFnTest {
   }  //- end Setup
 
     
-  @After
-  public void tearDown() throws IOException {
+  @AfterClass
+  static public void tearDown() throws IOException {
 
     if (trecCorpusFile != null) {
       trecCorpusFile.delete();
@@ -95,8 +93,10 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--iidList=1," }, printStream);
 
-    String output = byteArrayStream.toString ();
-    String[] outputLines = output.split(System.lineSeparator());
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
+    String[] outputLines = output.split("\n");
 
     /*
     //- What's the output  
@@ -157,9 +157,10 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--eidList=AP890101-0002" }, printStream);
 
-    //printStream.println ("PrintStream Output: " + byteArrayStream.toString());
-    String output = byteArrayStream.toString ();
-    String[] outputLines = output.split(System.lineSeparator());
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
+    String[] outputLines = output.split("\n");
 
     // Expecting 22 lines.
     assertTrue ("Output should contain " + outputLines.length, outputLines.length == 22);
@@ -212,8 +213,10 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--iidList=0,2" }, printStream);
 
-    String output = byteArrayStream.toString ();
-    String[] outputLines = output.split(System.lineSeparator());
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
+    String[] outputLines = output.split("\n");
 
     // Check that output and expected line counts agree.  Should be 45 lines.
     assertTrue ("Expected 45 output lines but got " + outputLines.length, outputLines.length == 45);
@@ -289,8 +292,10 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--eidList=AP890101-0001,AP890104-0235" }, printStream);
 
-    String output = byteArrayStream.toString ();
-    String[] outputLines = output.split(System.lineSeparator());
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
+    String[] outputLines = output.split("\n");
 
     // Output should be have 45 lines.
     assertTrue ("Output should contain " + outputLines.length, outputLines.length == 45);
@@ -365,7 +370,9 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--iidList=999," }, printStream);
 
-    String output = byteArrayStream.toString ();
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
     String[] outputLines = output.split("\n");
 
     // Output should be a single line.
@@ -397,7 +404,9 @@ public class DumpDocTermsFnTest {
 			   "--index=" + childPath.getAbsolutePath(),
 			   "--eidList=XYZ" }, printStream);
 
-    String output = byteArrayStream.toString ();
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
     String[] outputLines = output.split("\n");
 
     // Only single output line expected
@@ -430,8 +439,10 @@ public class DumpDocTermsFnTest {
                            "--iidList=0,1",
 			   "--eidList=AP890104-0235,AP890101-0002" }, printStream);
 
-    String output = byteArrayStream.toString ();
-    String[] outputLines = output.split(System.lineSeparator());
+    String tmp_output = byteArrayStream.toString ();
+    // if running on Windows we need to strip off part of the newline
+    String output = tmp_output.replace("\r", "");
+    String[] outputLines = output.split("\n");
 
     /*
     //- What's the output  

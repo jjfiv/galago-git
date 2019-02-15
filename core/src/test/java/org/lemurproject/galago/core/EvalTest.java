@@ -78,7 +78,9 @@ public class EvalTest {
                 printStream);
 
         String output = byteArrayStream.toString();
-        String[] outputLines = output.split(System.lineSeparator());
+        // Note: not using the platform independent System.lineSeparator()
+        // because 'eval' uses the hard-coded "\n"
+        String[] outputLines = output.split("\n");
 
         assertEquals("0.250", outputLines[1].trim().replaceAll(" +", " ").split(" ")[1]);
         assertEquals("0.500", outputLines[2].trim().replaceAll(" +", " ").split(" ")[1]);
@@ -101,7 +103,9 @@ public class EvalTest {
                 printStream);
 
         String output = byteArrayStream.toString();
-        String[] outputLines = output.split(System.lineSeparator());
+        // Note: not using the platform independent System.lineSeparator()
+        // because 'eval' uses the hard-coded "\n"
+        String[] outputLines = output.split("\n");
 
         assertEquals("0.25000", outputLines[1].trim().replaceAll(" +", " ").split(" ")[1]);
         assertEquals("0.50000", outputLines[2].trim().replaceAll(" +", " ").split(" ")[1]);
@@ -124,7 +128,9 @@ public class EvalTest {
                 printStream);
 
         String output = byteArrayStream.toString();
-        String[] outputLines = output.split(System.lineSeparator());
+        // Note: not using the platform independent System.lineSeparator()
+        // because 'eval' uses the hard-coded "\n"
+        String[] outputLines = output.split("\n");
 
         assertEquals("0.25", outputLines[1].trim().replaceAll(" +", " ").split(" ")[1]);
         assertEquals("0.50", outputLines[2].trim().replaceAll(" +", " ").split(" ")[1]);
