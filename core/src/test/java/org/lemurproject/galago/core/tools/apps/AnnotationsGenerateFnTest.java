@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -30,10 +28,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class AnnotationsGenerateFnTest {
 
-  private File indexFile = null;
-  private File trecCorpusFile = null;
-  private String indexFilePath = null;
-  private String trecCorpusFilePath = null;
+  private static File indexFile = null;
+  private static File trecCorpusFile = null;
+  private static String indexFilePath = null;
+  private static String trecCorpusFilePath = null;
     
   private final String tmpDirStr = System.getProperty ("java.io.tmpdir");
 
@@ -120,8 +118,8 @@ public class AnnotationsGenerateFnTest {
   private final static String twitterDocument = "uid-0 \tnow\t 0 4 9 10 11 3 \tfaked\n";
 
     
-  @Before
-  public void setUp() throws Exception {
+  @BeforeClass
+  static public void setUp() throws Exception {
 
     String trecCorpus = AppTest.trecDocument ("tt-1", "<TITLE>Federal Authorities Investigate Explosion"
 					    + "Killing Four Youths</TITLE>\n<TEXT>The Bureau of Alcohol Tobacco and Firearms"
@@ -138,10 +136,12 @@ public class AnnotationsGenerateFnTest {
                                             + " a 300-horsepower, V-10 engine during the 1990s.</TEXT>");
 
     trecCorpusFile = FileUtility.createTemporary ();
+    trecCorpusFile.deleteOnExit();
     StreamUtil.copyStringToFile (trecCorpus, trecCorpusFile);
     trecCorpusFilePath = trecCorpusFile.getAbsolutePath ();
 
     indexFile = FileUtility.createTemporaryDirectory ();
+    indexFile.deleteOnExit();
     indexFilePath = indexFile.getAbsolutePath ();
 
     // Build the index
@@ -155,8 +155,8 @@ public class AnnotationsGenerateFnTest {
   }  //- end Setup
 
     
-  @After
-  public void tearDown() throws IOException {
+  @AfterClass
+  static public void tearDown() throws IOException {
 
     if (trecCorpusFile != null) {
       trecCorpusFile.delete ();
@@ -208,7 +208,8 @@ public class AnnotationsGenerateFnTest {
       assertTrue ("Output line [" + i + "] doesn't match expected", expectedL.equals (outputL));
       i++;
     }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testSingleIID
 
 
@@ -244,7 +245,8 @@ public class AnnotationsGenerateFnTest {
       assertTrue ("Output line [" + i + "] doesn't match expected", expectedL.equals (outputL));
       i++;
     }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testSingleEID
 
 
@@ -266,7 +268,8 @@ public class AnnotationsGenerateFnTest {
     // Expected line
     String expectedLine = "IID 999 does not exist in the index.  Skipping.";
     assertTrue ("Output line [" + expectedLine + "] doesn't match expected", expectedLine.equals (outputLine));
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testUndefIID
 
 
@@ -288,7 +291,8 @@ public class AnnotationsGenerateFnTest {
     // Expected line
     String expectedLine = "EID XYZ does not exist in the index.  Skipping.";
     assertTrue ("Output line [" + outputLine + "] doesn't match expected", expectedLine.equals (outputLine));
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testUndefEID
 
 
@@ -337,7 +341,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testIIDandEID
 
 
@@ -348,6 +353,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File trecTextFile = FileUtility.createTemporary ();
+    trecTextFile.deleteOnExit();
     String trecTextFilePath = trecTextFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (trecTextDocument, trecTextFile);
     
@@ -384,11 +390,9 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!trecTextFile.delete ()) {
-      throw new IOException ("Couldn't delete trectext file: " + trecTextFilePath);
-    }
+    // Note: if you don't close the streams the temporary file will not get deleted (at least on Windows)
+    byteArrayStream.close();
+    printStream.close();
 
   }  //- end testTrecTextOrganization
 
@@ -400,6 +404,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File trecTextFile = FileUtility.createTemporary ();
+    trecTextFile.deleteOnExit();
     String trecTextFilePath = trecTextFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (trecTextDocument, trecTextFile); 
     
@@ -417,11 +422,8 @@ public class AnnotationsGenerateFnTest {
 
     assertEquals (expectedLine, outputLine);
 
-    //- Clean up
-    if (!trecTextFile.delete ()) {
-      throw new IOException ("Couldn't delete trectext file: " + trecTextFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testTrecTextPerson
 
     
@@ -432,6 +434,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File trecTextFile = FileUtility.createTemporary ();
+    trecTextFile.deleteOnExit();
     String trecTextFilePath = trecTextFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (trecTextDocument, trecTextFile);
     
@@ -448,12 +451,8 @@ public class AnnotationsGenerateFnTest {
     // Expected line
     String expectedLine = trecTextFilePath + "  tt-1  location maryland 21 22 175 183";
     assertEquals (expectedLine, outputLine);
-
-    //- Clean up
-    if (!trecTextFile.delete ()) {
-      throw new IOException ("Couldn't delete trectext file: " + trecTextFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testTrecTextLocation
 
 
@@ -464,6 +463,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File trecTextFile = FileUtility.createTemporary ();
+    trecTextFile.deleteOnExit();
     String trecTextFilePath = trecTextFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (trecTextDocument, trecTextFile);
     
@@ -501,11 +501,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!trecTextFile.delete ()) {
-      throw new IOException ("Couldn't delete trectext file: " + trecTextFilePath);
-    }
+    byteArrayStream.close();
+    printStream.close();
 
   }  //- end testTrecTextALL
 
@@ -517,6 +514,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File trecWebFile = FileUtility.createTemporary ();
+    trecWebFile.deleteOnExit();
     String trecWebFilePath = trecWebFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (trecWebDocument, trecWebFile);
     
@@ -555,12 +553,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!trecWebFile.delete ()) {
-      throw new IOException ("Couldn't delete trecweb file: " + trecWebFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testTrecWebFile
 
 
@@ -572,6 +566,7 @@ public class AnnotationsGenerateFnTest {
 
     //File textFile = FileUtility.createTemporary ();
     File textFile = File.createTempFile (tmpDirStr + File.separator +"tempTextFile", ".txt");
+    textFile.deleteOnExit();
     String textFilePath = textFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (textDocument, textFile);
     
@@ -610,12 +605,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!textFile.delete ()) {
-      throw new IOException ("Couldn't delete text file: " + textFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testTextFile
 
 
@@ -627,6 +618,7 @@ public class AnnotationsGenerateFnTest {
 
     //File xmlFile = FileUtility.createTemporary ();
     File xmlFile = File.createTempFile (tmpDirStr + File.separator +"tempXmlFile", ".xml");
+    xmlFile.deleteOnExit();
     String xmlFilePath = xmlFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (xmlDocument, xmlFile);
     
@@ -666,12 +658,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!xmlFile.delete ()) {
-      throw new IOException ("Couldn't delete XML file: " + xmlFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testXMLFile
 
 
@@ -682,6 +670,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File multiDocFile = FileUtility.createTemporary ();
+    multiDocFile.deleteOnExit();
     String multiDocFilePath = multiDocFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (multiDocument, multiDocFile);
     
@@ -720,12 +709,8 @@ public class AnnotationsGenerateFnTest {
       assertEquals (expectedL, outputL);
       i++;
     }
-
-    //- Clean up
-    if (!multiDocFile.delete ()) {
-      throw new IOException ("Couldn't delete multi document file: " + multiDocFilePath);
-    }
-
+    byteArrayStream.close();
+    printStream.close();
   }  //- end testTrecTextMultiDocs
 
 
@@ -736,6 +721,7 @@ public class AnnotationsGenerateFnTest {
     PrintStream printStream = new PrintStream (byteArrayStream);
 
     File nuthinDocFile = FileUtility.createTemporary ();
+    nuthinDocFile.deleteOnExit();
     String nuthinDocFilePath = nuthinDocFile.getAbsolutePath ();
     StreamUtil.copyStringToFile (nuthinDocument, nuthinDocFile);
     
@@ -752,10 +738,9 @@ public class AnnotationsGenerateFnTest {
 
     assertEquals (expectedLine, outputLine);
 
-    //- Clean up
-    if (!nuthinDocFile.delete ()) {
-      throw new IOException ("Couldn't delete no entities document file: " + nuthinDocFilePath);
-    }
+    byteArrayStream.close();
+    printStream.close();
+
 
   }  //- end testNoEntitiesDoc
 
