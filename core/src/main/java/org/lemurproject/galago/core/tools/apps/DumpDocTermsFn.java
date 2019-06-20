@@ -22,7 +22,6 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 
 
-
 /**
  * @author smh
  */
@@ -85,16 +84,16 @@ public class DumpDocTermsFn extends AppFunction {
         // This is the postings index string
         String index = p.getString("index");
 
-        Stemmer  stemmer = null;
+        Stemmer stemmer = null;
         // check if they want stemmed terms
-        if (index.endsWith("porter")){
+        if (index.endsWith("porter")) {
             stemmer = new Porter2Stemmer();
         }
-        if (index.endsWith("krovetz")){
+        if (index.endsWith("krovetz")) {
             stemmer = new KrovetzStemmer();
         }
 
-        // But for getting internal and external doc IDs, we need the index root
+        // But for getting internal and external doc IDs, we need the index root.
         int lastSlash = index.lastIndexOf(File.separator);
         String indexRoot = index.substring(0, lastSlash);
 

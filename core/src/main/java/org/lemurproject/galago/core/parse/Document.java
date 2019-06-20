@@ -120,7 +120,7 @@ public class Document implements Serializable {
         int pos = 0;
         for (String tmp_term : terms) {
             String term = tmp_term;
-            if (stemmer != null){
+            if (stemmer != null) {
                 term = stemmer.stem(term);
             }
             if (!termPos.containsKey(term)) {

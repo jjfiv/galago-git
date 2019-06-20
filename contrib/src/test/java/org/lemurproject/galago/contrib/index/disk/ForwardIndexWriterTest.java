@@ -35,8 +35,7 @@ import static org.junit.Assert.assertFalse;
 
 public class ForwardIndexWriterTest {
 
-  //- Some fake positions for terms in three docs.  (note end positions will be
-  //  these positions + 1).
+  //- Some fake positions for terms in three docs.  (note end positions will be these positions + 1).
   private static final int[][] positions = new int[][]{
           new int[]{0, 1, 2, 3},
           new int[]{0, 1, 2, 3},

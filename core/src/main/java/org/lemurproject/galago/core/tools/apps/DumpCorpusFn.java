@@ -14,7 +14,6 @@ import java.io.PrintStream;
 import java.util.Map;
 
 /**
- *
  * @author sjh
  */
 public class DumpCorpusFn extends AppFunction {

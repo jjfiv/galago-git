@@ -17,7 +17,6 @@ import java.io.PrintStream;
 
 import java.lang.System;
 
-//import static org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

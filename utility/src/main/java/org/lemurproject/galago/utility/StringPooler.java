@@ -14,70 +14,75 @@ import java.util.WeakHashMap;
  */
 public class StringPooler {
 
-  private static long DEFAULT_ACTIVE = 100000;
+    private static long DEFAULT_ACTIVE = 100000;
 
-  long maxActive;
-  WeakHashMap<String, WeakReference<String>> pool = new WeakHashMap<>();
+    long maxActive;
+    WeakHashMap<String, WeakReference<String>> pool = new WeakHashMap<>();
 
-	static StringPooler _instance = new StringPooler();
-	public static StringPooler getInstance() {
-		return _instance;
-	}
+    static StringPooler _instance = new StringPooler();
 
-  /** Disable string pooling */
-  public static void disable() {
-    _instance = new StringPooler() {
-      @Override public void transform(List<String> terms) { }
-    };
-  }
-
-  public StringPooler() {
-    this(DEFAULT_ACTIVE);
-  }
-
-  public StringPooler(long maxActive) {
-    this.maxActive = maxActive;
-  }
-
-  /**
-   * Replaces the strings within this document with strings in a
-   * string pool.
-   *
-   * String pool is weakly referenced - it can be garbage collected
-   *
-   * @param terms are the list of terms, probably from the document.
-   */
-  public void transform(List<String> terms) {
-    if (maxActive > 0 && pool.size() > maxActive) {
-      pool.clear();
+    public static StringPooler getInstance() {
+        return _instance;
     }
 
-    for (int i = 0; i < terms.size(); i++) {
-      String term = terms.get(i);
+    /**
+     * Disable string pooling
+     */
+    public static void disable() {
+        _instance = new StringPooler() {
+            @Override
+            public void transform(List<String> terms) {
+            }
+        };
+    }
 
-      if (term == null) {
-        continue;
-      }
+    public StringPooler() {
+        this(DEFAULT_ACTIVE);
+    }
 
-      WeakReference<String> cacheRef = pool.get(term);
-      if (cacheRef != null) {
-        // if we have a response
-        String cached = cacheRef.get();
-        // first check that the string it holds has not been gc-ed between the last two lines of execution:
-        if (cached != null) {
-          // term was cached!
-          term = cached;
-          // now replace the doc reference to the cached string
-          terms.set(i, term);
-          continue;
+    public StringPooler(long maxActive) {
+        this.maxActive = maxActive;
+    }
+
+    /**
+     * Replaces the strings within this document with strings in a
+     * string pool.
+     * <p>
+     * String pool is weakly referenced - it can be garbage collected
+     *
+     * @param terms are the list of terms, probably from the document.
+     */
+    public void transform(List<String> terms) {
+        if (maxActive > 0 && pool.size() > maxActive) {
+            pool.clear();
         }
-      }
 
-      // otherwise the pool does not contain the term - gc or new term
-      term = new String(term);
-      pool.put(term, new WeakReference<>(term));
-      // still want to set the term to the newly cached term
-      terms.set(i, term);
+        for (int i = 0; i < terms.size(); i++) {
+            String term = terms.get(i);
+
+            if (term == null) {
+                continue;
+            }
+
+            WeakReference<String> cacheRef = pool.get(term);
+            if (cacheRef != null) {
+                // if we have a response
+                String cached = cacheRef.get();
+                // first check that the string it holds has not been gc-ed between the last two lines of execution:
+                if (cached != null) {
+                    // term was cached!
+                    term = cached;
+                    // now replace the doc reference to the cached string
+                    terms.set(i, term);
+                    continue;
+                }
+            }
+
+            // otherwise the pool does not contain the term - gc or new term
+            term = new String(term);
+            pool.put(term, new WeakReference<>(term));
+            // still want to set the term to the newly cached term
+            terms.set(i, term);
+        }
     }
-  }
 }

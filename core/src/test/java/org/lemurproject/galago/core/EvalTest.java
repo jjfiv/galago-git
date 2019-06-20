@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author michaelz
- *
  * Note: this really should live in org.lemurproject.galago.core.eval but because we're
  * using App, it would result in a circular dependency.
  */

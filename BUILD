@@ -1,4 +1,3 @@
-
 Building Galago
 
 Java and Maven Requirements:
