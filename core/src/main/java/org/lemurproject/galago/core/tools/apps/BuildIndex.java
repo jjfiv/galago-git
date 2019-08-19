@@ -813,10 +813,13 @@ public class BuildIndex extends AppFunction {
             + "  --stemmer+porter|krovetz: Selects which stemmers to use.\n"
             + "                           [default=[porter]]\n"
             + "  --corpus={true|false}:   Selects to output a corpus folder.\n"
-            + "                           [default=true]\n\n"
+            + "                           [default=true]\n"
             + "  --tokenizer/fields+{field-name}:   \n"
             + "                           Selects field parts to index.\n"
-            + "                           [omitted]\n\n"
+            + "                           [omitted]\n"
+            + "  --filetype={html | xml | txt | arc | warc | trectext | trecweb | twitter | corpus | selectivecorpus | wiki}:   \n"
+            + "                           Force the file type.\n"
+            + "                           [optional, no default]\n\n"
             + TupleflowAppUtil.getTupleFlowParameterString();
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
