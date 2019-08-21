@@ -419,10 +419,20 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       br = new BufferedReader(new InputStreamReader(is));
       String line;
 
-      // check the first line for a "<doc>" line
+      // check the first non-blank line for a "<doc>" tag
+      // Some docs in Robust04 have blank lines before the <doc> tag
+      // so the docs in those files don't get indexed
       line = br.readLine();
-      if (line == null || !line.equalsIgnoreCase("<doc>")) {
-        return fileType;
+      if (line == null) {
+        return null;
+      }
+
+      while (line.trim().length() == 0){
+          line = br.readLine();
+      }
+
+      if (!line.equalsIgnoreCase("<doc>")) {
+          return null;
       }
 
       // Now just read until we see docno and (text or html) tags

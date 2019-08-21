@@ -22,144 +22,171 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
  * @author trevor
  */
 public class DocumentSourceTest {
-  public static final class FakeProcessor implements Processor<DocumentSplit> {
+    public static final class FakeProcessor implements Processor<DocumentSplit> {
 
-    public ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
+        public ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
 
-    @Override
-    public void process(DocumentSplit split) {
-      splits.add(split);
+        @Override
+        public void process(DocumentSplit split) {
+            splits.add(split);
+        }
+
+        @Override
+        public void close() throws IOException {
+        }
     }
 
-    @Override
-    public void close() throws IOException {
+    @Test
+    public void testUnknownFile() throws Exception {
+        Parameters p = Parameters.create();
+        p.set("inputPath", "foo.c");
+        DocumentSource source = new DocumentSource(new FakeParameters(p));
+        FakeProcessor processor = new FakeProcessor();
+        source.setProcessor(processor);
+
+        boolean threwException = false;
+        try {
+            source.run();
+        } catch (Exception e) {
+            threwException = true;
+        }
+        assertTrue(threwException);
     }
-  }
 
-  @Test
-  public void testUnknownFile() throws Exception {
-    Parameters p = Parameters.create();
-    p.set("inputPath", "foo.c");
-    DocumentSource source = new DocumentSource(new FakeParameters(p));
-    FakeProcessor processor = new FakeProcessor();
-    source.setProcessor(processor);
+    @Test
+    public void testUnknownExtension() throws Exception {
+        File tempFile = FileUtility.createTemporary();
+        Parameters p = Parameters.create();
+        p.set("inputPath", tempFile.getAbsolutePath());
+        DocumentSource source = new DocumentSource(new FakeParameters(p));
+        FakeProcessor processor = new FakeProcessor();
+        source.setProcessor(processor);
 
-    boolean threwException = false;
-    try {
-      source.run();
-    } catch (Exception e) {
-      threwException = true;
+        source.run();
+        assertEquals(0, processor.splits.size());
+        assertTrue(tempFile.delete());
     }
-    assertTrue(threwException);
-  }
 
-  @Test
-  public void testUnknownExtension() throws Exception {
-    File tempFile = FileUtility.createTemporary();
-    Parameters p = Parameters.create();
-    p.set("inputPath", tempFile.getAbsolutePath());
-    DocumentSource source = new DocumentSource(new FakeParameters(p));
-    FakeProcessor processor = new FakeProcessor();
-    source.setProcessor(processor);
+    @Test
+    public void testForcedZipFile() throws IOException {
+        File tmp = null;
 
-    source.run();
-    assertEquals(0, processor.splits.size());
-    assertTrue(tempFile.delete());
-  }
+        try {
+            tmp = File.createTempFile("zipUtilTest", ".zip");
 
-  @Test
-  public void testForcedZipFile() throws IOException {
-    File tmp = null;
+            String fooContents = "foo is the best";
+            String fooPath = "data/foo.txt";
 
-    try {
-      tmp = File.createTempFile("zipUtilTest", ".zip");
+            String trecWebContents = "<DOC>\n"
+                    + "<DOCNO>CACM-0001</DOCNO>\n"
+                    + "<DOCHDR>\n"
+                    + "http://www.yahoo.com:80 some extra text here\n"
+                    + "even more text in this part\n"
+                    + "</DOCHDR>\n"
+                    + "This is some text in a document.\n"
+                    + "</DOC>\n";
+            String trecWebPath = "data/blah/easy.trecweb";
 
-      String fooContents = "foo is the best";
-      String fooPath = "data/foo.txt";
+            // write zip file:
+            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp.getAbsolutePath()));
+            ZipUtil.write(zos, fooPath, ByteUtil.fromString(fooContents));
+            ZipUtil.write(zos, trecWebPath, ByteUtil.fromString(trecWebContents));
+            zos.close();
 
-      String trecWebContents = "<DOC>\n"
-          + "<DOCNO>CACM-0001</DOCNO>\n"
-          + "<DOCHDR>\n"
-          + "http://www.yahoo.com:80 some extra text here\n"
-          + "even more text in this part\n"
-          + "</DOCHDR>\n"
-          + "This is some text in a document.\n"
-          + "</DOC>\n";
-      String trecWebPath = "data/blah/easy.trecweb";
+            ZipFile zipFile = ZipUtil.open(tmp);
+            // read zip file:
+            List<String> entries = ZipUtil.listZipFile(zipFile);
+            assertEquals(2, entries.size());
+            zipFile.close();
 
-      // write zip file:
-      ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp.getAbsolutePath()));
-      ZipUtil.write(zos, fooPath, ByteUtil.fromString(fooContents));
-      ZipUtil.write(zos, trecWebPath, ByteUtil.fromString(trecWebContents));
-      zos.close();
+            List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.parseArray("filetype", "foo"));
+            assertEquals(2, splits.size());
+            assertEquals("foo", splits.get(0).fileType);
+            assertEquals("foo", splits.get(1).fileType);
 
-      ZipFile zipFile = ZipUtil.open(tmp);
-      // read zip file:
-      List<String> entries = ZipUtil.listZipFile(zipFile);
-      assertEquals(2, entries.size());
-      zipFile.close();
-
-      List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.parseArray("filetype", "foo"));
-      assertEquals(2, splits.size());
-      assertEquals("foo", splits.get(0).fileType);
-      assertEquals("foo", splits.get(1).fileType);
-
-    } finally {
-      if(tmp != null) assertTrue(tmp.delete());
+        } finally {
+            if (tmp != null) assertTrue(tmp.delete());
+        }
     }
-  }
 
-  @Test
-  public void testZipFile() throws IOException {
-    File tmp = null;
+    @Test
+    public void testZipFile() throws IOException {
+        File tmp = null;
 
-    try {
-      tmp = File.createTempFile("zipUtilTest", ".zip");
+        try {
+            tmp = File.createTempFile("zipUtilTest", ".zip");
 
-      String fooContents = "foo is the best";
-      String fooPath = "data/foo.txt";
+            String fooContents = "foo is the best";
+            String fooPath = "data/foo.txt";
 
-      String barContents = "bar is the best";
-      String barPath = "data/subdir/ignore/bar.txt";
+            String barContents = "bar is the best";
+            String barPath = "data/subdir/ignore/bar.txt";
 
-      String trecWebContents = "<DOC>\n"
-              + "<DOCNO>CACM-0001</DOCNO>\n"
-              + "<DOCHDR>\n"
-              + "http://www.yahoo.com:80 some extra text here\n"
-              + "even more text in this part\n"
-              + "</DOCHDR>\n"
-              + "This is some text in a document.\n"
-              + "</DOC>\n";
-      String trecWebPath = "data/blah/easy.trecweb";
-      String guessTrecWebPath = "data/blah/guess_trecweb";
+            String trecWebContents = "<DOC>\n"
+                    + "<DOCNO>CACM-0001</DOCNO>\n"
+                    + "<DOCHDR>\n"
+                    + "http://www.yahoo.com:80 some extra text here\n"
+                    + "even more text in this part\n"
+                    + "</DOCHDR>\n"
+                    + "This is some text in a document.\n"
+                    + "</DOC>\n";
+            String trecWebPath = "data/blah/easy.trecweb";
+            String guessTrecWebPath = "data/blah/guess_trecweb";
 
-      // write zip file:
-      ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp.getAbsolutePath()));
-      ZipUtil.write(zos, fooPath, ByteUtil.fromString(fooContents));
-      ZipUtil.write(zos, barPath, ByteUtil.fromString(barContents));
-      ZipUtil.write(zos, trecWebPath, ByteUtil.fromString(trecWebContents));
-      ZipUtil.write(zos, guessTrecWebPath, ByteUtil.fromString(trecWebContents));
-      zos.close();
+            String trecTextContents = "<DOC>\n"
+                    + "<DOCNO>CACM-0001</DOCNO>\n"
+                    + "<DOCHDR>\n"
+                    + "http://www.yahoo.com:80 some extra text here\n"
+                    + "even more text in this part\n"
+                    + "</DOCHDR>\n"
+                    + "<TEXT>\n"
+                    + "This is some text in a document.\n"
+                    + "</TEXT>\n"
+                    + "</DOC>\n";
+            String guessTrecTextPath = "data/blah/easy";
 
-      ZipFile zipFile = ZipUtil.open(tmp);
-      // read zip file:
-      List<String> entries = ZipUtil.listZipFile(zipFile);
-      assertEquals(4, entries.size());
-      zipFile.close();
+            String trecTextWithBlankLinesContents = "\n   \n<DOC>\n"
+                    + "<DOCNO>CACM-0001</DOCNO>\n"
+                    + "<DOCHDR>\n"
+                    + "http://www.yahoo.com:80 some extra text here\n"
+                    + "even more text in this part\n"
+                    + "</DOCHDR>\n"
+                    + "<TEXT>\n"
+                    + "This is some text in a document.\n"
+                    + "</TEXT>\n"
+                    + "</DOC>\n";
+            String guessTrecTextWithBlankLinesPath = "data/blah/easy2";
 
-      List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.create());
-      assertEquals(4, splits.size());
-      assertEquals("txt", splits.get(0).fileType);
-      assertEquals("txt", splits.get(1).fileType);
-      assertEquals("trecweb", splits.get(2).fileType);
-      assertEquals("trecweb", splits.get(3).fileType);
+            // write zip file:
+            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp.getAbsolutePath()));
+            ZipUtil.write(zos, fooPath, ByteUtil.fromString(fooContents));
+            ZipUtil.write(zos, barPath, ByteUtil.fromString(barContents));
+            ZipUtil.write(zos, trecWebPath, ByteUtil.fromString(trecWebContents));
+            ZipUtil.write(zos, guessTrecWebPath, ByteUtil.fromString(trecWebContents));
+            ZipUtil.write(zos, guessTrecTextPath, ByteUtil.fromString(trecTextContents));
+            ZipUtil.write(zos, guessTrecTextWithBlankLinesPath, ByteUtil.fromString(trecTextWithBlankLinesContents));
+            zos.close();
 
-    } finally {
-      if(tmp != null) assertTrue(tmp.delete());
+            ZipFile zipFile = ZipUtil.open(tmp);
+            // read zip file:
+            List<String> entries = ZipUtil.listZipFile(zipFile);
+            assertEquals(6, entries.size());
+            zipFile.close();
+
+            List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.create());
+            assertEquals(6, splits.size());
+            assertEquals("txt", splits.get(0).fileType);
+            assertEquals("txt", splits.get(1).fileType);
+            assertEquals("trecweb", splits.get(2).fileType);
+            assertEquals("trecweb", splits.get(3).fileType);
+            assertEquals("trectext", splits.get(4).fileType);
+            assertEquals("trectext", splits.get(5).fileType);
+
+        } finally {
+            if (tmp != null) assertTrue(tmp.delete());
+        }
     }
-  }
 }
