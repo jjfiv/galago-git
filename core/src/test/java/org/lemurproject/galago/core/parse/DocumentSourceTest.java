@@ -160,6 +160,9 @@ public class DocumentSourceTest {
                     + "</DOC>\n";
             String guessTrecTextWithBlankLinesPath = "data/blah/easy2";
 
+            String emptyContents = "\n   \n\n";
+            String guessEmptyPath = "data/blah/empty";
+
             // write zip file:
             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp.getAbsolutePath()));
             ZipUtil.write(zos, fooPath, ByteUtil.fromString(fooContents));
@@ -168,22 +171,24 @@ public class DocumentSourceTest {
             ZipUtil.write(zos, guessTrecWebPath, ByteUtil.fromString(trecWebContents));
             ZipUtil.write(zos, guessTrecTextPath, ByteUtil.fromString(trecTextContents));
             ZipUtil.write(zos, guessTrecTextWithBlankLinesPath, ByteUtil.fromString(trecTextWithBlankLinesContents));
+            ZipUtil.write(zos, guessEmptyPath, ByteUtil.fromString(emptyContents));
             zos.close();
 
             ZipFile zipFile = ZipUtil.open(tmp);
             // read zip file:
             List<String> entries = ZipUtil.listZipFile(zipFile);
-            assertEquals(6, entries.size());
+            assertEquals(7, entries.size());
             zipFile.close();
 
             List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.create());
-            assertEquals(6, splits.size());
+            assertEquals(7, splits.size());
             assertEquals("txt", splits.get(0).fileType);
             assertEquals("txt", splits.get(1).fileType);
             assertEquals("trecweb", splits.get(2).fileType);
             assertEquals("trecweb", splits.get(3).fileType);
             assertEquals("trectext", splits.get(4).fileType);
             assertEquals("trectext", splits.get(5).fileType);
+            assertEquals(null, splits.get(6).fileType);
 
         } finally {
             if (tmp != null) assertTrue(tmp.delete());

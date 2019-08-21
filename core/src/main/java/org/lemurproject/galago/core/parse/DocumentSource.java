@@ -422,14 +422,12 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       // check the first non-blank line for a "<doc>" tag
       // Some docs in Robust04 have blank lines before the <doc> tag
       // so the docs in those files don't get indexed
-      line = br.readLine();
-      if (line == null) {
-        return null;
-      }
-
-      while (line.trim().length() == 0){
-          line = br.readLine();
-      }
+      do {
+        line = br.readLine();
+        if (line == null) {
+            return null; // reached end of document
+        }
+      } while (line.trim().length() == 0);
 
       if (!line.equalsIgnoreCase("<doc>")) {
           return null;
