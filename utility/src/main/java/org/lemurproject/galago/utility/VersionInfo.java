@@ -38,11 +38,47 @@ public class VersionInfo {
    * build datetime [now()].
    * @return void
    */
+  // Version for Java 9+:
+  public static void setGalagoVersionAndBuildDateTime (Class callersClass) {
+
+    Properties props = new Properties ();
+
+    Class versionClass = new Object() {}.getClass().getEnclosingClass();
+    try (InputStream propFile = callersClass.getResourceAsStream ("/version.properties")) {
+      props.load (propFile);
+
+      if (props.containsKey ("version")) {
+        galagoVersion = props.getProperty ("version");
+      }
+      else {
+        galagoVersion = "Unknown";
+      }
+
+      if (props.containsKey ("build.date")) {
+        galagoBuildDateTime = props.getProperty ("build.date");
+      }
+      else {
+        galagoBuildDateTime = "Unknown";
+      }
+    }
+    catch (IOException ioe) {
+      System.out.println ("IO error reading properties\n" + ioe.toString());
+    }
+
+    //propFile.close ();
+
+    //- Determine current galago function (index) run datetime  [now()]
+    indexBuildDateTime = LocalDateTime.now ().format (
+                           DateTimeFormatter.ofPattern ("yyyy-MM-dd HH:mm"));
+
+  }  //- end setGalagoVersionAndBuildDateTime
+
   public static void setGalagoVersionAndBuildDateTime () {
 
     Properties props = new Properties ();
 
     Class versionClass = new Object() {}.getClass().getEnclosingClass();
+
     try (InputStream propFile = versionClass.getClass().getResourceAsStream ("/version.properties")) {
       props.load (propFile);
 
